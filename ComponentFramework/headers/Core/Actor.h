@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include "Component.h"
+#include <Core/Component.h>
 class Actor : public Component {
 	Actor(const Actor&) = delete;
 	Actor(Actor&&) = delete;

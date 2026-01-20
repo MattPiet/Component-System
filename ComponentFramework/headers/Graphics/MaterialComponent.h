@@ -1,6 +1,6 @@
 #pragma once
 #include <glew.h>
-#include "Component.h"
+#include <Core/Component.h>
 class MaterialComponent: public Component {
 private:
 	GLuint textureID;

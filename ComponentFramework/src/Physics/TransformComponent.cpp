@@ -1,4 +1,5 @@
-#include "TransformComponent.h"
+#include <Physics/TransformComponent.h>
+#include <Utils/MemoryMonitor.h>
 TransformComponent::TransformComponent(Component* parent_) : Component(parent_){}
 
 Matrix4 TransformComponent::GetTransformMatrix() const

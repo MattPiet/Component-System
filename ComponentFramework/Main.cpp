@@ -3,10 +3,11 @@
 #include <crtdbg.h>
 
 #include <string>
-#include "SceneManager.h"
-#include "Debug.h"
+#include <Core/SceneManager.h>
+#include <Core/Debug.h>
 
-  
+#include <Utils/MemoryMonitor.h>
+
 int main(int argc, char* args[]) {
 	Debug::DebugInit("GameEngineLog.txt");
 	
@@ -16,5 +17,8 @@ int main(int argc, char* args[]) {
 	} 
 	delete gsm;
 	_CrtDumpMemoryLeaks();
+	ReportLeaks();
+	std::cout << "\n--- Program Ended. Press Enter to close console ---" << std::endl;
+	std::cin.get();
 	exit(0);
 }

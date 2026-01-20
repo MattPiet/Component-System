@@ -1,5 +1,6 @@
-#include "Window.h"
-#include "Debug.h"
+#include <Core/Window.h>
+#include <Core/Debug.h>
+#include <Utils/MemoryMonitor.h>
 Window::Window(): window{nullptr}, context{nullptr},  width{0}, height{0} {}
 
 Window::~Window() {

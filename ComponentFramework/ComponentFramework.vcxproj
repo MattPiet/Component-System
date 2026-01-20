@@ -73,7 +73,7 @@
     <IncludePath>C:\GameDev\OpenGL\include;C:\GameDev\SDL2\include;C:\GameDev\MathLibrary\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\GameDev\MathLibraryEx\include;C:\GameDev\SDL3\include;C:\GameDev\MathLibrary\include;C:\GameDev\SDL3\include\SDL3_image;C:\GameDev\OpenGL\include;C:\GameDev\imgui\include;C:\GameDevM\imgui\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>C:\GameDev\MathLibraryEx\include;C:\GameDev\SDL3\include;C:\GameDev\MathLibrary\include;C:\GameDev\SDL3\include\SDL3_image;C:\GameDev\OpenGL\include;C:\GameDev\imgui\include;C:\GameDevM\imgui\include\GLFW;$(ProjectDir)headers;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,6 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\GameDev\imgui;$(SolutionDir)\$(ProjectName)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\GameDev\SDL3\lib\x64;C:\GameDev\OpenGL\lib\x64;C:\GameDev\imgui\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -131,7 +132,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="C:\GameDev\imgui\imgui.cpp" />
     <ClCompile Include="C:\GameDev\imgui\imgui_demo.cpp" />
     <ClCompile Include="C:\GameDev\imgui\imgui_draw.cpp" />
@@ -140,21 +140,21 @@
     <ClCompile Include="C:\GameDev\imgui\imgui_impl_sdl3.cpp" />
     <ClCompile Include="C:\GameDev\imgui\imgui_tables.cpp" />
     <ClCompile Include="C:\GameDev\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="GuiWindow.cpp" />
-    <ClCompile Include="MaterialComponent.cpp" />
-    <ClCompile Include="MeshComponent.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Scene0g.cpp" />
-    <ClCompile Include="ShaderComponent.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="TransformComponent.cpp" />
-    <ClCompile Include="UIManager.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="src\Core\Actor.cpp" />
+    <ClCompile Include="src\Core\Debug.cpp" />
+    <ClCompile Include="src\Core\GuiWindow.cpp" />
+    <ClCompile Include="src\Core\SceneManager.cpp" />
+    <ClCompile Include="src\Core\Timer.cpp" />
+    <ClCompile Include="src\Core\Window.cpp" />
+    <ClCompile Include="src\Graphics\MaterialComponent.cpp" />
+    <ClCompile Include="src\Graphics\MeshComponent.cpp" />
+    <ClCompile Include="src\Graphics\ShaderComponent.cpp" />
+    <ClCompile Include="src\Physics\TransformComponent.cpp" />
+    <ClCompile Include="src\Scenes\Scene0g.cpp" />
+    <ClCompile Include="src\UI\UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Actor.h" />
     <ClInclude Include="C:\GameDev\imgui\imconfig.h" />
     <ClInclude Include="C:\GameDev\imgui\imgui.h" />
     <ClInclude Include="C:\GameDev\imgui\imgui_impl_glfw.h" />
@@ -165,20 +165,21 @@
     <ClInclude Include="C:\GameDev\imgui\imstb_rectpack.h" />
     <ClInclude Include="C:\GameDev\imgui\imstb_textedit.h" />
     <ClInclude Include="C:\GameDev\imgui\imstb_truetype.h" />
-    <ClInclude Include="Component.h" />
-    <ClInclude Include="Debug.h" />
-    <ClInclude Include="GuiWindow.h" />
-    <ClInclude Include="MaterialComponent.h" />
-    <ClInclude Include="MeshComponent.h" />
-    <ClInclude Include="SceneManager.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="Scene0g.h" />
-    <ClInclude Include="ShaderComponent.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="tiny_obj_loader.h" />
-    <ClInclude Include="TransformComponent.h" />
-    <ClInclude Include="UIManager.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="headers\Core\Actor.h" />
+    <ClInclude Include="headers\Core\Component.h" />
+    <ClInclude Include="headers\Core\Debug.h" />
+    <ClInclude Include="headers\Core\GuiWindow.h" />
+    <ClInclude Include="headers\Core\Scene.h" />
+    <ClInclude Include="headers\Core\SceneManager.h" />
+    <ClInclude Include="headers\Core\Timer.h" />
+    <ClInclude Include="headers\Core\Window.h" />
+    <ClInclude Include="headers\Graphics\MaterialComponent.h" />
+    <ClInclude Include="headers\Graphics\MeshComponent.h" />
+    <ClInclude Include="headers\Graphics\ShaderComponent.h" />
+    <ClInclude Include="headers\Physics\TransformComponent.h" />
+    <ClInclude Include="headers\Scenes\Scene0g.h" />
+    <ClInclude Include="headers\UI\UIManager.h" />
+    <ClInclude Include="headers\Utils\MemoryMonitor.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="GameEngineLog.txt" />

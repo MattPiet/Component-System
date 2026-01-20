@@ -1,5 +1,7 @@
-#include "Actor.h"
-#include "Debug.h"
+#include <Core/Actor.h>
+#include <Core/Debug.h>
+
+#include <Utils/MemoryMonitor.h>
 
 Actor::Actor(Component* parent_):Component(parent_) {}
 
@@ -36,7 +38,13 @@ void Actor::Update(const float deltaTime) {
 void Actor::Render()const {}
 
 void Actor::RemoveAllComponents() {
-	components.clear();
+	for (auto component : components) {
+		if (component != nullptr) {
+			component->OnDestroy(); // Ensure the component cleans up its own GL/SDL resources
+			delete component;       // This actually calls the destructor and frees the heap memory
+		}
+	}
+	components.clear(); // Now it's safe to empty the vector
 }
 
 void Actor::ListComponents() const {

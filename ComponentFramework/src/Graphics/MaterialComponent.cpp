@@ -1,5 +1,8 @@
-#include "MaterialComponent.h"
+#include <Graphics/MaterialComponent.h>
 #include <SDL_image.h>
+
+#include <Utils/MemoryMonitor.h>
+
 MaterialComponent::MaterialComponent(Component* parent_,const char* filename_):
 	Component(parent_), textureID(0), filename(filename_) {}
 

@@ -1,11 +1,12 @@
-#include "GuiWindow.h"
-#include "Debug.h"
+#include <Core/GuiWindow.h>
+#include <Core/Debug.h>
 
 ///ImGui includes
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
 
+#include <Utils/MemoryMonitor.h>
 GuiWindow::GuiWindow() : window{ nullptr }, context{ nullptr }, width{ 0 }, height{ 0 } {}
 GuiWindow::~GuiWindow() { OnDestroy(); }
 

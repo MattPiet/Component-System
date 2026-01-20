@@ -28,38 +28,44 @@
     <Filter Include="extras\CPP">
       <UniqueIdentifier>{07a5c1bd-ddd5-41fe-b96e-8acf591c8cd7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{79ab8743-e226-4d7b-ac41-d482d5bdc94e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{bea05c33-343b-4203-8781-5ba4f7d6f54f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{78047647-140a-4095-a5bd-dec2111d7ec9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{c160501a-8764-441b-9789-f70cb439cb38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{48406456-a856-4d26-81ca-87b0cf132aeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{d3129dfa-851b-4d61-b5f5-f3f068cac749}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{bf52127d-7dd0-4b75-9088-42d8694b555f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{9bc36ef3-5877-472c-882a-7c390632a0a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{7cbc915b-5f56-4871-b29e-67e594efd8c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Default">
+      <UniqueIdentifier>{eb652b33-42cd-4701-af11-5b4b3e343e98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Textured">
+      <UniqueIdentifier>{dc327075-e4cc-4b9f-8883-2fd4aeaafd0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Lighting">
+      <UniqueIdentifier>{0586403a-90b7-452d-9b30-0b5977754298}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene0g.cpp">
-      <Filter>Source Files\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MaterialComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Actor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UIManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GuiWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="C:\GameDev\imgui\imgui.cpp">
       <Filter>extras\CPP</Filter>
     </ClCompile>
@@ -84,56 +90,47 @@
     <ClCompile Include="C:\GameDev\imgui\imgui_widgets.cpp">
       <Filter>extras\CPP</Filter>
     </ClCompile>
-    <ClCompile Include="MeshComponent.cpp">
+    <ClCompile Include="src\Scenes\Scene0g.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderComponent.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\Core\Actor.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="TransformComponent.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\Core\Debug.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\GuiWindow.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\SceneManager.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Timer.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Window.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\MaterialComponent.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\MeshComponent.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\ShaderComponent.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physics\TransformComponent.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\UIManager.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene0g.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tiny_obj_loader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Actor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UIManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GuiWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="C:\GameDev\imgui\imconfig.h">
       <Filter>extras\heaaders</Filter>
     </ClInclude>
@@ -164,11 +161,50 @@
     <ClInclude Include="C:\GameDev\imgui\imstb_truetype.h">
       <Filter>extras\heaaders</Filter>
     </ClInclude>
-    <ClInclude Include="MeshComponent.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="headers\Core\Scene.h">
+      <Filter>Header Files\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderComponent.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="headers\Scenes\Scene0g.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Core\Actor.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Core\Component.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Core\Debug.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Core\GuiWindow.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Core\Window.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Core\Timer.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Core\SceneManager.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Graphics\MaterialComponent.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Graphics\MeshComponent.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Graphics\ShaderComponent.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\UI\UIManager.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Physics\TransformComponent.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Utils\MemoryMonitor.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -178,22 +214,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\defaultFrag.glsl">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Default</Filter>
     </None>
     <None Include="shaders\defaultVert.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shaders\textureFrag.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shaders\texturePhongFrag.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shaders\texturePhongVert.glsl">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Default</Filter>
     </None>
     <None Include="shaders\textureVert.glsl">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Textured</Filter>
+    </None>
+    <None Include="shaders\textureFrag.glsl">
+      <Filter>Resource Files\Textured</Filter>
+    </None>
+    <None Include="shaders\texturePhongFrag.glsl">
+      <Filter>Resource Files\Lighting</Filter>
+    </None>
+    <None Include="shaders\texturePhongVert.glsl">
+      <Filter>Resource Files\Lighting</Filter>
     </None>
   </ItemGroup>
 </Project>

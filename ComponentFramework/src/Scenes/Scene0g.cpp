@@ -1,18 +1,19 @@
 #include <glew.h>
 #include <iostream>
 #include <SDL.h>
-#include "Scene0g.h"
+#include <Scenes/Scene0g.h>
 #include <MMath.h>
-#include "Debug.h"
-#include "GuiWindow.h"
-#include "MaterialComponent.h"
-#include "MeshComponent.h"
-#include "ShaderComponent.h"
-#include "TransformComponent.h"
+#include <Core/Debug.h>
+#include <Core/GuiWindow.h>
+#include <Graphics/MaterialComponent.h>
+#include <Graphics/MeshComponent.h>
+#include <Graphics/ShaderComponent.h>
+#include <Physics/TransformComponent.h>
 
 ///ImGui includes
-#include "UIManager.h"
+#include <UI/UIManager.h>
 
+#include <Utils/MemoryMonitor.h>
 
 Scene0g::Scene0g() :
 drawInWireMode{false},
@@ -34,15 +35,19 @@ bool Scene0g::OnCreate() {
 	actor->AddComponent<ShaderComponent>(actor, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
 	actor->AddComponent<TransformComponent>(actor, Vec3(0.0f, -1.0f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 	actor->OnCreate();
-	actor->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
 
+	actor->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
 	projectionMatrix = MMath::perspective(45.0f, (16.0f / 9.0f), 0.5f, 100.0f);
 	viewMatrix = MMath::lookAt(Vec3(0.0f, 0.0f, 5.0f), Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
 	return true;
 }
 
 void Scene0g::OnDestroy() {
-	actor->OnDestroy();
+	if(actor){
+		actor->OnDestroy();
+		delete actor;
+		actor = nullptr;
+	}
 }
 
 void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {

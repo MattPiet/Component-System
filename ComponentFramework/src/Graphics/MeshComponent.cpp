@@ -1,11 +1,11 @@
-#include "MeshComponent.h"
+#include <Graphics/MeshComponent.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
+#include <Graphics/tiny_obj_loader.h>
 
 
 
-
+#include <Utils/MemoryMonitor.h>
 MeshComponent::MeshComponent(Component* parent_, const char* filename_) : Component(parent_), 
 dateLength(0),
 filename(filename_)

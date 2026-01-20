@@ -1,5 +1,5 @@
 #pragma once
-#include "Component.h"
+#include <Core/Component.h>
 #include "glew.h"
 #include <unordered_map>
 #include <string>

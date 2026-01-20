@@ -1,12 +1,9 @@
-#include "UIManager.h"
-#include "Debug.h"
-
-
+#include <UI/UIManager.h>
+#include <Core/Debug.h>
+#include <Utils/MemoryMonitor.h>
 
 UIManager::UIManager() {}
 UIManager::~UIManager() {}
-
-
 
 void UIManager::StartInvisibleWindow(const char* Label,ImVec2 pos){
 	ImGui::SetNextWindowPos(pos); // (x, y) in screen coordinates

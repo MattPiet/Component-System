@@ -1,10 +1,10 @@
 #ifndef SCENE0_H
 #define SCENE0_H
-#include "Scene.h"
+#include <Core/Scene.h>
 #include "Vector.h"
 #include <Matrix.h>
 #include <QMath.h>
-#include "Actor.h"
+#include <Core/Actor.h>
 
 using namespace MATH;
 /// Forward declarations 
@@ -13,7 +13,7 @@ union SDL_Event;
 
 class Scene0g : public Scene {
 private:
-	Actor * actor;
+	Actor* actor;
 	bool drawInWireMode;
 	bool showImGuiDemoWindow = true; // optional for testing
 	char textBuffer[256] = "";       // input text buffer
@@ -34,7 +34,7 @@ public:
 	virtual void OnDestroy() override;
 	virtual void Update(const float deltaTime) override;
 	virtual void Render() const override;
-	virtual void HandleEvents(const SDL_Event &sdlEvent) override;
+	virtual void HandleEvents(const SDL_Event& sdlEvent) override;
 	virtual void RenderGUI() override;
 
 };

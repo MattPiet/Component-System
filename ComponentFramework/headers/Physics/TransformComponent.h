@@ -1,5 +1,5 @@
 #pragma once
-#include "Component.h"
+#include <Core/Component.h>
 #include "Matrix.h"
 #include "QMath.h"
 #include "Euler.h"

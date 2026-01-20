@@ -1,8 +1,9 @@
-#include "ShaderComponent.h"
-#include "Debug.h"
+#include <Graphics/ShaderComponent.h>
+#include <Core/Debug.h>
 #include <fstream>
 #include <string.h>
 
+#include <Utils/MemoryMonitor.h>
 ShaderComponent::ShaderComponent(Component* parent_, const char* vertFilename_, const char* fragFilename_,
 	const char* tessCtrlFilename_, const char* tessEvalFilename_,
 	const char* geomFilename_) : Component(parent_),

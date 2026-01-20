@@ -1,5 +1,6 @@
-#include "Debug.h"
+#include <Core/Debug.h>
 #include <chrono>
+#include <Utils/MemoryMonitor.h>
 using namespace std::chrono;
 
 std::string Debug::logFileName = "";
