@@ -8,7 +8,7 @@ bool Actor::OnCreate() {
 	Debug::Info("Loading assets for Actor: ", __FILE__, __LINE__);
 	for (auto component : components) {
 		if (component->OnCreate() == false) {
-			Debug::Error("Loading assets for Actor/Components: ", __FILE__, __LINE__);
+			Debug::Error("Component failed OnCreate: " + std::string(typeid(*component).name()), __FILE__, __LINE__);
 			isCreated = false;
 			return isCreated;
 		}

@@ -3,6 +3,9 @@
 #include "glew.h"
 #include <unordered_map>
 #include <string>
+#include <Matrix.h>
+
+using namespace MATH;
 class ShaderComponent : public Component
 {
 	const char* vertFilename;
@@ -18,6 +21,10 @@ class ShaderComponent : public Component
 	GLuint tessEvalShaderID;
 	GLuint geomShaderID;
 	std::unordered_map<std::string, GLuint > uniformMap;
+
+	//Matrix4 projectionMatrix;
+	//Matrix4 viewMatrix;
+	//Matrix4 modelMatrix;
 
 	/// Private helper methods
 	char* ReadTextFile(const char* fileName);
@@ -38,6 +45,10 @@ public:
 	virtual void Render() const override;
 
 	inline GLuint GetProgram() const { return shaderID; }
-	GLuint GetUniformID(std::string name);
+	GLuint GetUniformID(std::string name) const;
+
 };
+
+
+
 

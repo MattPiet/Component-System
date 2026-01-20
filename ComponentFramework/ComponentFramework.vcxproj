@@ -149,6 +149,7 @@
     <ClCompile Include="Scene0g.cpp" />
     <ClCompile Include="ShaderComponent.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="TransformComponent.cpp" />
     <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -185,8 +186,10 @@
   <ItemGroup>
     <None Include="shaders\defaultFrag.glsl" />
     <None Include="shaders\defaultVert.glsl" />
+    <None Include="shaders\textureFrag.glsl" />
     <None Include="shaders\texturePhongFrag.glsl" />
     <None Include="shaders\texturePhongVert.glsl" />
+    <None Include="shaders\textureVert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

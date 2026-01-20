@@ -57,7 +57,13 @@ void ShaderComponent::OnDestroy() {
 
 void ShaderComponent::Update(const float deltaTime_){}
 
-void ShaderComponent::Render() const{}
+void ShaderComponent::Render() const{
+	//glUseProgram(GetProgram());
+	////glBindTexture(GL_TEXTURE_2D, texture->GetTextureID());
+	//glUniformMatrix4fv(GetUniformID("projectionMatrix"), 1, GL_FALSE, projectionMatrix);
+	//glUniformMatrix4fv(GetUniformID("viewMatrix"), 1, GL_FALSE, viewMatrix);
+	//glUniformMatrix4fv(GetUniformID("modelMatrix"), 1, GL_FALSE, modelMatrix);
+}
 
 bool ShaderComponent::CompileAttach() {
 	GLint status;
@@ -241,7 +247,7 @@ bool ShaderComponent::Link() {
 	return true;
 }
 
-GLuint ShaderComponent::GetUniformID(std::string name) {
+GLuint ShaderComponent::GetUniformID(std::string name) const {
 	auto id = uniformMap.find(name);
 #ifdef _DEBUG
 	static bool writeBadUniformWarning = true;
@@ -255,6 +261,7 @@ GLuint ShaderComponent::GetUniformID(std::string name) {
 #endif 
 	return id->second;
 }
+
 
 void ShaderComponent::SetUniformLocations() {
 	int count;

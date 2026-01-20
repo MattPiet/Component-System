@@ -3,9 +3,10 @@
 #include "Scene.h"
 #include "Vector.h"
 #include <Matrix.h>
+#include <QMath.h>
 #include "Actor.h"
 
-
+using namespace MATH;
 /// Forward declarations 
 union SDL_Event;
 
@@ -19,6 +20,11 @@ private:
 	int buttonClicks = 0;            // button counter
 	class Window* window;
 	SDL_GLContext context;
+
+
+	Matrix4 projectionMatrix;
+	Matrix4 viewMatrix;
+	Matrix4 modelMatrix;
 
 public:
 	explicit Scene0g();

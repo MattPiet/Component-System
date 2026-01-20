@@ -90,6 +90,9 @@
     <ClCompile Include="ShaderComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TransformComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug.h">
@@ -180,10 +183,16 @@
     <None Include="shaders\defaultVert.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\textureFrag.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="shaders\texturePhongFrag.glsl">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\texturePhongVert.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\textureVert.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
