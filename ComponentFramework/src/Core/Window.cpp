@@ -1,7 +1,7 @@
 #include <Core/Window.h>
 #include <Core/Debug.h>
 #include <Utils/MemoryMonitor.h>
-Window::Window(): window{nullptr}, context{nullptr},  width{0}, height{0} {}
+Window::Window() : window{ nullptr }, context{ nullptr }, width{ 0 }, height{ 0 } {}
 
 Window::~Window() {
 	OnDestroy();
@@ -12,10 +12,10 @@ bool Window::OnCreate(std::string name_, int width_, int height_) {
 		Debug::FatalError("Failed to initialize SDL", __FILE__, __LINE__);
 		return false;
 	}
-	
+
 	this->width = width_;
 	this->height = height_;
-	window = SDL_CreateWindow(name_.c_str(),width, height,SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow(name_.c_str(), width, height, SDL_WINDOW_OPENGL);
 
 	if (window == nullptr) {
 		Debug::FatalError("Failed to create a window", __FILE__, __LINE__);
@@ -23,8 +23,8 @@ bool Window::OnCreate(std::string name_, int width_, int height_) {
 	}
 	context = SDL_GL_CreateContext(window);
 	int major, minor;
-	getInstalledOpenGLInfo(&major,&minor);
-	setAttributes(major,minor);
+	getInstalledOpenGLInfo(&major, &minor);
+	setAttributes(major, minor);
 
 	/// Fire up the GL Extension Wrangler (GLEW)
 	GLenum err = glewInit();
@@ -46,15 +46,15 @@ void Window::OnDestroy() {
 
 
 
-void Window::getInstalledOpenGLInfo(int *major, int *minor) {
+void Window::getInstalledOpenGLInfo(int* major, int* minor) {
 	/// You can to get some info regarding versions and manufacturer
-	const GLubyte *version = glGetString(GL_VERSION);
+	const GLubyte* version = glGetString(GL_VERSION);
 	/// You can also get the version as ints	
-	const GLubyte *vendor = glGetString(GL_VENDOR);
-	const GLubyte *renderer = glGetString(GL_RENDERER);
-	const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+	const GLubyte* vendor = glGetString(GL_VENDOR);
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-	
+
 	glGetIntegerv(GL_MAJOR_VERSION, major);
 	glGetIntegerv(GL_MINOR_VERSION, minor);
 	Debug::Info("OpenGL version: " + std::string((char*)glGetString(GL_VERSION)), __FILE__, __LINE__);
@@ -75,5 +75,3 @@ void Window::setAttributes(int major_, int minor_) {
 	glewExperimental = GL_TRUE;
 	return;
 }
-
-

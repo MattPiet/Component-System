@@ -56,9 +56,9 @@ void ShaderComponent::OnDestroy() {
 	glDeleteProgram(shaderID);
 }
 
-void ShaderComponent::Update(const float deltaTime_){}
+void ShaderComponent::Update(const float deltaTime_) {}
 
-void ShaderComponent::Render() const{
+void ShaderComponent::Render() const {
 	//glUseProgram(GetProgram());
 	////glBindTexture(GL_TEXTURE_2D, texture->GetTextureID());
 	//glUniformMatrix4fv(GetUniformID("projectionMatrix"), 1, GL_FALSE, projectionMatrix);
@@ -317,7 +317,7 @@ char* ShaderComponent::ReadTextFile(const char* filename) {
 			errorMsg += str2;
 			throw errorMsg;								/// Bail out
 		}
-		buffer = new char[(int)(bufferSize + 1)];		/// Need to NULL terminate the array
+		buffer = M_new char[(int)(bufferSize + 1)];		/// Need to NULL terminate the array
 		file.seekg(0, std::ios::beg);
 		file.read(buffer, bufferSize);
 		buffer[bufferSize] = NULL;						/// Add the NULL

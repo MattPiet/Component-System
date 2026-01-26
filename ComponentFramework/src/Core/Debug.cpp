@@ -13,7 +13,7 @@ void Debug::DebugInit(const std::string& logFileName_) {
 	char str[26]; /// get the time and date
 	system_clock::time_point p = system_clock::now();
 	std::time_t result = system_clock::to_time_t(p);
-    ctime_s(str,sizeof str,&result); /// Since C11
+	ctime_s(str, sizeof str, &result); /// Since C11
 	out << str;
 
 	out.close();
@@ -25,7 +25,8 @@ void Debug::Log(const MessageType type_, const std::string& message_, const std:
 	out.open(logFileName, std::ios::out | std::ios::app);
 	if (type_ == MessageType::TYPE_INFO) {
 		msg = message_;
-	} else {
+	}
+	else {
 		msg = message_ + " in file: " + fileName_ + " on line: " + std::to_string(line_);
 	}
 #ifdef _DEBUG

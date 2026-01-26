@@ -6,8 +6,8 @@
 #include <Core/GuiWindow.h>
 #include <UI/UIManager.h>
 #include <Utils/MemoryMonitor.h>
-SceneManager::SceneManager(): 
-	currentScene{nullptr}, window{nullptr}, timer{nullptr},
+SceneManager::SceneManager() :
+	currentScene{ nullptr }, window{ nullptr }, timer{ nullptr },
 	fps(60), isRunning{ false }, fullScreen{ false }, imguiWin{ nullptr } {
 	Debug::Info("Starting the SceneManager", __FILE__, __LINE__);
 }
@@ -20,7 +20,7 @@ SceneManager::~SceneManager() {
 		delete currentScene;
 		currentScene = nullptr;
 	}
-	
+
 	if (timer) {
 		delete timer;
 		timer = nullptr;
@@ -43,7 +43,7 @@ bool SceneManager::Initialize(std::string name_, int width_, int height_) {
 
 	if (useImGui)
 	{
-		imguiWin = new GuiWindow();
+		imguiWin = M_new GuiWindow();
 		if (!imguiWin->OnCreate(name_, width_, height_))
 		{
 			Debug::FatalError("Failed to initialize ImGuiWindow object", __FILE__, __LINE__);
@@ -52,14 +52,14 @@ bool SceneManager::Initialize(std::string name_, int width_, int height_) {
 	}
 	else
 	{
-		window = new Window();
+		window = M_new Window();
 		if (!window->OnCreate(name_, width_, height_))
 		{
 			Debug::FatalError("Failed to initialize Window object", __FILE__, __LINE__);
 			return false;
 		}
 	}
-	timer = new Timer();
+	timer = M_new Timer();
 	if (timer == nullptr) {
 		Debug::FatalError("Failed to initialize Timer object", __FILE__, __LINE__);
 		return false;
@@ -141,19 +141,19 @@ void SceneManager::HandleEvents() {
 		}
 		else if (sdlEvent.type == SDL_EVENT_KEY_DOWN) {
 			switch (sdlEvent.key.scancode) {
-			[[fallthrough]]; /// C17 Prevents switch/case fallthrough warnings
+				[[fallthrough]]; /// C17 Prevents switch/case fallthrough warnings
 			case SDL_SCANCODE_ESCAPE:
 			case SDL_SCANCODE_Q:
 				isRunning = false;
 				return;
-				
+
 
 			case SDL_SCANCODE_F1:
 			case SDL_SCANCODE_F2:
 			case SDL_SCANCODE_F3:
 			case SDL_SCANCODE_F4:
 			case SDL_SCANCODE_F5:
-		
+
 				BuildNewScene(SCENE_NUMBER::SCENE0g);
 				break;
 
@@ -171,7 +171,7 @@ void SceneManager::HandleEvents() {
 }
 
 bool SceneManager::BuildNewScene(SCENE_NUMBER scene) {
-	bool status; 
+	bool status;
 
 	if (currentScene != nullptr) {
 		currentScene->OnDestroy();
@@ -181,15 +181,15 @@ bool SceneManager::BuildNewScene(SCENE_NUMBER scene) {
 
 	switch (scene) {
 	case SCENE_NUMBER::SCENE0g:
-		currentScene = new Scene0g();
+		currentScene = M_new Scene0g();
 		status = currentScene->OnCreate();
 		break;
-	
 
-	/*case SCENE_NUMBER::SCENE1g:
-		currentScene = new Scene1g();
-		status = currentScene->OnCreate();
-		break;*/
+
+		/*case SCENE_NUMBER::SCENE1g:
+			currentScene = M_new Scene1g();
+			status = currentScene->OnCreate();
+			break;*/
 
 	default:
 		Debug::Error("Incorrect scene number assigned in the manager", __FILE__, __LINE__);
@@ -198,5 +198,3 @@ bool SceneManager::BuildNewScene(SCENE_NUMBER scene) {
 	}
 	return true;
 }
-
-

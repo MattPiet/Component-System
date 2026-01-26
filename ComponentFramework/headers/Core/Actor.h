@@ -1,16 +1,20 @@
 #pragma once
 #include <vector>
 #include <iostream>
+#include <Matrix.h>
 #include <Core/Component.h>
+
+
+#include <Utils/MemoryMonitor.h>
+
 class Actor : public Component {
 	Actor(const Actor&) = delete;
 	Actor(Actor&&) = delete;
 	Actor& operator= (const Actor&) = delete;
 	Actor& operator=(Actor&&) = delete;
-
 protected:
 	std::vector<Component*> components;
-
+	
 public:
 	Actor(Component* parent_);
 	~Actor();
@@ -21,7 +25,7 @@ public:
 
 	template<typename ComponentTemplate, typename ... Args>
 	void AddComponent(Args&& ... args_) {
-		ComponentTemplate* componentObject = new ComponentTemplate(std::forward<Args>(args_)...);
+		ComponentTemplate* componentObject = M_new ComponentTemplate(std::forward<Args>(args_)...);
 		components.push_back(componentObject);
 
 	}
@@ -50,5 +54,8 @@ public:
 
 	void ListComponents() const;
 	void RemoveAllComponents();
+
+	//MATH::Matrix4 GetModelMatrix();
+
 };
 

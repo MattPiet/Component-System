@@ -5,6 +5,7 @@
 #include <Matrix.h>
 #include <QMath.h>
 #include <Core/Actor.h>
+#include <Graphics/CameraActor.h>
 
 using namespace MATH;
 /// Forward declarations 
@@ -14,6 +15,7 @@ union SDL_Event;
 class Scene0g : public Scene {
 private:
 	Actor* actor;
+	CameraActor* camera;
 	bool drawInWireMode;
 	bool showImGuiDemoWindow = true; // optional for testing
 	char textBuffer[256] = "";       // input text buffer

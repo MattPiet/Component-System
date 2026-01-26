@@ -18,6 +18,7 @@ layout(location = 3) out vec2 textureCoords;
 
 void main() {
     textureCoords = uvCoord;
+    textureCoords.y *= -1.0; // Flip the Y coordinate for texture mapping
     mat3 normalMatrix = mat3(transpose(inverse(modelMatrix)));
     vertNormal = normalize(normalMatrix * vNormal); /// Rotate the normal to the correct orientation 
     vec3 vertPos = vec3(viewMatrix * modelMatrix * vVertex);

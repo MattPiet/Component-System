@@ -147,11 +147,14 @@
     <ClCompile Include="src\Core\SceneManager.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
+    <ClCompile Include="src\Graphics\CameraActor.cpp" />
     <ClCompile Include="src\Graphics\MaterialComponent.cpp" />
     <ClCompile Include="src\Graphics\MeshComponent.cpp" />
     <ClCompile Include="src\Graphics\ShaderComponent.cpp" />
+    <ClCompile Include="src\Graphics\SkyBoxComponent.cpp" />
     <ClCompile Include="src\Physics\TransformComponent.cpp" />
     <ClCompile Include="src\Scenes\Scene0g.cpp" />
+    <ClCompile Include="src\UI\Trackball.cpp" />
     <ClCompile Include="src\UI\UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -173,11 +176,14 @@
     <ClInclude Include="headers\Core\SceneManager.h" />
     <ClInclude Include="headers\Core\Timer.h" />
     <ClInclude Include="headers\Core\Window.h" />
+    <ClInclude Include="headers\Graphics\CameraActor.h" />
     <ClInclude Include="headers\Graphics\MaterialComponent.h" />
     <ClInclude Include="headers\Graphics\MeshComponent.h" />
     <ClInclude Include="headers\Graphics\ShaderComponent.h" />
+    <ClInclude Include="headers\Graphics\SkyBoxComponent.h" />
     <ClInclude Include="headers\Physics\TransformComponent.h" />
     <ClInclude Include="headers\Scenes\Scene0g.h" />
+    <ClInclude Include="headers\UI\Trackball.h" />
     <ClInclude Include="headers\UI\UIManager.h" />
     <ClInclude Include="headers\Utils\MemoryMonitor.h" />
   </ItemGroup>
@@ -187,6 +193,8 @@
   <ItemGroup>
     <None Include="shaders\defaultFrag.glsl" />
     <None Include="shaders\defaultVert.glsl" />
+    <None Include="shaders\skyBoxFrag.glsl" />
+    <None Include="shaders\skyBoxVert.glsl" />
     <None Include="shaders\textureFrag.glsl" />
     <None Include="shaders\texturePhongFrag.glsl" />
     <None Include="shaders\texturePhongVert.glsl" />

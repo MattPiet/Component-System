@@ -5,8 +5,8 @@ TransformComponent::TransformComponent(Component* parent_) : Component(parent_){
 Matrix4 TransformComponent::GetTransformMatrix() const
 {
 	return MMath::translate(pos)
-		  *MMath::toMatrix4(orientation)
-		  *MMath::scale(scale);
+		* MMath::scale(scale)
+		* MMath::toMatrix4(orientation);
 	 
 }
 

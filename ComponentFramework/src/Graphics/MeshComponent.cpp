@@ -6,7 +6,7 @@
 
 
 #include <Utils/MemoryMonitor.h>
-MeshComponent::MeshComponent(Component* parent_, const char* filename_) : Component(parent_), 
+MeshComponent::MeshComponent(Component* parent_, const char* filename_) : Component(parent_),
 dateLength(0),
 filename(filename_)
 , drawmode(0)
@@ -19,10 +19,10 @@ filename(filename_)
 MeshComponent::~MeshComponent() {}
 
 bool MeshComponent::OnCreate() {
-	LoadModel(filename);
-	StoreMeshData(GL_TRIANGLES);
+    LoadModel(filename);
+    StoreMeshData(GL_TRIANGLES);
 
-	return true;
+    return true;
 }
 
 void MeshComponent::OnDestroy() {
@@ -44,7 +44,7 @@ void MeshComponent::LoadModel(const char* filename) {
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-	vertices.clear();
+    vertices.clear();
     normals.clear();
     uvCoords.clear();
 
@@ -65,7 +65,7 @@ void MeshComponent::LoadModel(const char* filename) {
 
             Vec2 uvCoord{};
             uvCoord.x = attrib.texcoords[2 * index.texcoord_index + 0];
-            uvCoord.y = -attrib.texcoords[2 * index.texcoord_index + 1];
+            uvCoord.y = attrib.texcoords[2 * index.texcoord_index + 1];
 
             vertices.push_back(vertex);
             normals.push_back(normal);
@@ -119,4 +119,3 @@ void MeshComponent::StoreMeshData(GLenum drawmode_) {
 #undef TEXCOORD_LENGTH
 
 }
-

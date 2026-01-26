@@ -99,6 +99,6 @@ inline static void ReportLeaks() {
     std::cout << "--------------------------------\n\n";
 }
 
-#define new new(__FILE__, __LINE__)
+#define M_new new(__FILE__, __LINE__)
 
 #endif

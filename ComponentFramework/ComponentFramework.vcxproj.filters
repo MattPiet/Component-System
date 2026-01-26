@@ -64,6 +64,9 @@
     <Filter Include="Resource Files\Lighting">
       <UniqueIdentifier>{0586403a-90b7-452d-9b30-0b5977754298}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\SkyBox">
+      <UniqueIdentifier>{36113599-7ca1-4db2-ac36-44cbe6aa0a15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\GameDev\imgui\imgui.cpp">
@@ -128,6 +131,15 @@
     </ClCompile>
     <ClCompile Include="src\UI\UIManager.cpp">
       <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\CameraActor.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\Trackball.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\SkyBoxComponent.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +218,15 @@
     <ClInclude Include="headers\Utils\MemoryMonitor.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="headers\Graphics\CameraActor.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\UI\Trackball.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Graphics\SkyBoxComponent.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="GameEngineLog.txt">
@@ -230,6 +251,12 @@
     </None>
     <None Include="shaders\texturePhongVert.glsl">
       <Filter>Resource Files\Lighting</Filter>
+    </None>
+    <None Include="shaders\skyBoxFrag.glsl">
+      <Filter>Resource Files\SkyBox</Filter>
+    </None>
+    <None Include="shaders\skyBoxVert.glsl">
+      <Filter>Resource Files\SkyBox</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -9,6 +9,7 @@
 #include <Graphics/MeshComponent.h>
 #include <Graphics/ShaderComponent.h>
 #include <Physics/TransformComponent.h>
+#include <Graphics/SkyBoxComponent.h>
 
 ///ImGui includes
 #include <UI/UIManager.h>
@@ -28,17 +29,35 @@ Scene0g::~Scene0g() {
 }
 
 bool Scene0g::OnCreate() {
-	
-	actor = new Actor(nullptr);
+
+	camera = M_new CameraActor(nullptr, 45.0f, 16.0f / 9.0f, 0.5f, 100.0f);
+	camera->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, -5.0f), Quaternion());
+	camera->AddComponent<ShaderComponent>(nullptr, "shaders/skyBoxVert.glsl", "shaders/skyBoxFrag.glsl");
+	camera->AddComponent<MeshComponent>(nullptr, "meshes/Cube.obj");
+	camera->AddComponent<SkyBoxComponent>(nullptr,
+		"textures/skybox/StarSkyboxPosx.png",
+		"textures/skybox/StarSkyboxNegx.png",
+		"textures/skybox/StarSkyboxPosy.png",
+		"textures/skybox/StarSkyboxNegY.png",
+		"textures/skybox/StarSkyboxPosz.png",
+		"textures/skybox/StarSkyboxnegz.png");
+	camera->OnCreate();
+
+	actor = M_new Actor(nullptr);
 	actor->AddComponent<MaterialComponent>(actor, "textures/mario_main.png");
 	actor->AddComponent<MeshComponent>(actor, "meshes/Mario.obj");
 	actor->AddComponent<ShaderComponent>(actor, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
 	actor->AddComponent<TransformComponent>(actor, Vec3(0.0f, -1.0f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 	actor->OnCreate();
-
 	actor->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
-	projectionMatrix = MMath::perspective(45.0f, (16.0f / 9.0f), 0.5f, 100.0f);
-	viewMatrix = MMath::lookAt(Vec3(0.0f, 0.0f, 5.0f), Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
+
+	actor->ListComponents();
+
+	Vec3 offset = Vec3(0.0f, 0.0f, 15.0f);
+	Vec3 rotatedOffset = QMath::rotate(offset, camera->GetOrientation());
+	Vec3 cameraPos = Vec3(0.0f, 0.0f, 0.0f) + rotatedOffset;
+	camera->SetView(camera->GetOrientation(), cameraPos);
+	camera->DontTrackXYRotations();
 	return true;
 }
 
@@ -48,13 +67,32 @@ void Scene0g::OnDestroy() {
 		delete actor;
 		actor = nullptr;
 	}
+	if(camera){
+		camera->OnDestroy();
+		delete camera;
+		camera = nullptr;
+	}
 }
 
 void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
+	camera->UpdateViewMatrix(sdlEvent);
 	switch( sdlEvent.type ) {
     case SDL_EVENT_KEY_DOWN:
 		switch (sdlEvent.key.scancode) {
 			case SDL_SCANCODE_W:
+				//drawInWireMode = !drawInWireMode;
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 1.0f, 0.0f)));
+				break;
+			case SDL_SCANCODE_S:
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, -1.0f, 0.0f)));
+				break;
+			case SDL_SCANCODE_A:
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(-1.0f, 0.0f, 0.0f)));
+				break;
+			case SDL_SCANCODE_D:
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(1.0f, 0.0f, 0.0f)));
+				break;
+			case SDL_SCANCODE_L:
 				drawInWireMode = !drawInWireMode;
 				break;
 		}
@@ -69,6 +107,14 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 	case SDL_EVENT_MOUSE_BUTTON_UP:
 	break;
 
+	case SDL_EVENT_MOUSE_WHEEL:
+			if(sdlEvent.wheel.y > 0) {
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, -1.0f)));
+			}
+			else if(sdlEvent.wheel.y < 0) {
+					camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, 1.0f)));
+			}
+		break;
 	default:
 		break;
     }
@@ -102,6 +148,22 @@ void Scene0g::Render() const {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glDepthMask(GL_FALSE);
+	glUseProgram(camera->GetComponent<ShaderComponent>()->GetProgram());
+	glUniformMatrix4fv(camera->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
+	glUniformMatrix4fv(camera->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, MMath::toMatrix4(camera->GetOrientation()));
+	glBindTexture(GL_TEXTURE_CUBE_MAP, camera->GetComponent<SkyBoxComponent>()->getTextureID());
+	camera->GetComponent<MeshComponent>()->Render();
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glDepthMask(GL_TRUE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+
 	if (drawInWireMode) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -115,14 +177,13 @@ void Scene0g::Render() const {
 	glUseProgram(actor->GetComponent<ShaderComponent>()->GetProgram());
 	glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
 
-	glUniformMatrix4fv(actor->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, projectionMatrix);
-	glUniformMatrix4fv(actor->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(actor->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
+	glUniformMatrix4fv(actor->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
 	glUniformMatrix4fv(actor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"), 1, GL_FALSE, actor->GetComponent<TransformComponent>()->GetTransformMatrix());
 	glUniform3fv(actor->GetComponent<ShaderComponent>()->GetUniformID("lightPos"), 1, Vec3(-5.0f, 5.0f, -1.0f));
 	actor->GetComponent<MeshComponent>()->Render();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glUseProgram(0);
-	
 }
 
 

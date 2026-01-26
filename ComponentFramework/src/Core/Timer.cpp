@@ -2,7 +2,7 @@
 #include <iostream>
 #include <Core/Timer.h>
 #include <Utils/MemoryMonitor.h>
-Timer::Timer() : prevTicks{0}, currentTicks{0} {}
+Timer::Timer() : prevTicks{ 0 }, currentTicks{ 0 } {}
 
 Timer::~Timer() {}
 
@@ -35,4 +35,3 @@ unsigned int Timer::GetSleepTime(const unsigned int fps_) const {
 float Timer::GetCurrentTicks() const {
 	return static_cast<float>(currentTicks) / 1000.0f;
 }
-
