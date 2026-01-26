@@ -81,16 +81,22 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 		switch (sdlEvent.key.scancode) {
 			case SDL_SCANCODE_W:
 				//drawInWireMode = !drawInWireMode;
-				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 1.0f, 0.0f)));
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, -1.0f)));
 				break;
 			case SDL_SCANCODE_S:
-				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, -1.0f, 0.0f)));
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, 1.0f)));
 				break;
 			case SDL_SCANCODE_A:
 				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(-1.0f, 0.0f, 0.0f)));
 				break;
 			case SDL_SCANCODE_D:
 				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(1.0f, 0.0f, 0.0f)));
+				break;
+			case SDL_SCANCODE_LSHIFT:
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, -1.0f, 0.0f)));
+				break;
+			case SDL_SCANCODE_SPACE:
+				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 1.0f, 0.0f)));
 				break;
 			case SDL_SCANCODE_L:
 				drawInWireMode = !drawInWireMode;
@@ -107,14 +113,14 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 	case SDL_EVENT_MOUSE_BUTTON_UP:
 	break;
 
-	case SDL_EVENT_MOUSE_WHEEL:
-			if(sdlEvent.wheel.y > 0) {
-				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, -1.0f)));
-			}
-			else if(sdlEvent.wheel.y < 0) {
-					camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, 1.0f)));
-			}
-		break;
+	//case SDL_EVENT_MOUSE_WHEEL:
+	//		if(sdlEvent.wheel.y > 0) {
+	//			camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, -1.0f)));
+	//		}
+	//		else if(sdlEvent.wheel.y < 0) {
+	//				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, 1.0f)));
+	//		}
+	//	break;
 	default:
 		break;
     }
