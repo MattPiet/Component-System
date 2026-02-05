@@ -1,6 +1,5 @@
 #include <Core/Actor.h>
 #include <Core/Debug.h>
-#include <Physics/TransformComponent.h>
 #include <Utils/MemoryMonitor.h>
 
 Actor::Actor(Component* parent_):Component(parent_) {}
@@ -21,6 +20,7 @@ bool Actor::OnCreate() {
 
 Actor::~Actor() {
 	OnDestroy();
+	
 }
 
 void Actor::OnDestroy() {
@@ -54,7 +54,7 @@ void Actor::ListComponents() const {
 	}
 	std::cout << '\n';
 }
-
+//
 //MATH::Matrix4 Actor::GetModelMatrix() {
 //	
 //	Ref<TransformComponent> transform = GetComponent<TransformComponent>();
@@ -68,3 +68,18 @@ void Actor::ListComponents() const {
 //	}
 //	return modelMatrix;
 //}
+//
+MATH::Matrix4 Actor::GetModelMatrix() {
+
+	MATH::Matrix4 modelMatrix;
+	TransformComponent* transform = GetComponent<TransformComponent>();
+	if (transform != nullptr) {
+		modelMatrix = transform->GetTransformMatrix();
+	} else {
+		modelMatrix.loadIdentity();
+	}
+	if (parent) {
+		modelMatrix = dynamic_cast<Actor*>(parent)->GetComponent<TransformComponent>()->GetTranslate_Rotate_Matrix() * modelMatrix;
+	}
+	return modelMatrix;
+}

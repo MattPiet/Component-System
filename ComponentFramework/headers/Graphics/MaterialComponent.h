@@ -5,8 +5,8 @@ class MaterialComponent: public Component {
 private:
 	GLuint textureID;
 	const char* filename;
-	bool LoadImage(const char* filename);
 public:
+	bool LoadImage(const char* filename);
 	MaterialComponent(Component* parent_,const char* filename_);
 	virtual ~MaterialComponent();
 	

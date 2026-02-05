@@ -25,6 +25,13 @@ public:
 	Vec3 GetScale() { return scale; }
 	Quaternion GetQuaternion() { return orientation; }
 	Matrix4 GetTransformMatrix() const;
+	Matrix4 GetMoveMatrix() const {
+		return MMath::translate(pos);
+	}
+	Matrix4 GetTranslate_Rotate_Matrix() const {
+		return MMath::translate(pos)
+			* MMath::toMatrix4(orientation);
+	}
 	void SetTransform(Vec3 pos_, Quaternion orientation_, Vec3 scale_ = Vec3(1.0f, 1.0f, 1.0f) ) {
 		pos = pos_;
 		orientation = orientation_;

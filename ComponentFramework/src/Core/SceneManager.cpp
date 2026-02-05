@@ -139,6 +139,14 @@ void SceneManager::HandleEvents() {
 			isRunning = false;
 			return;
 		}
+		else if (sdlEvent.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
+			// 2. Check WHICH BUTTON was pressed
+			if (sdlEvent.gbutton.button == SDL_GAMEPAD_BUTTON_EAST) { // 'East' is usually 'B'
+
+				isRunning = false;
+				return;
+			}
+		}
 		else if (sdlEvent.type == SDL_EVENT_KEY_DOWN) {
 			switch (sdlEvent.key.scancode) {
 				[[fallthrough]]; /// C17 Prevents switch/case fallthrough warnings

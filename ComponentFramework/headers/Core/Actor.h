@@ -3,7 +3,7 @@
 #include <iostream>
 #include <Matrix.h>
 #include <Core/Component.h>
-
+#include <Physics/TransformComponent.h>
 
 #include <Utils/MemoryMonitor.h>
 
@@ -14,7 +14,7 @@ class Actor : public Component {
 	Actor& operator=(Actor&&) = delete;
 protected:
 	std::vector<Component*> components;
-	
+
 public:
 	Actor(Component* parent_);
 	~Actor();
@@ -55,7 +55,7 @@ public:
 	void ListComponents() const;
 	void RemoveAllComponents();
 
-	//MATH::Matrix4 GetModelMatrix();
+	MATH::Matrix4 GetModelMatrix();
 
 };
 

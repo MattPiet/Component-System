@@ -11,7 +11,7 @@ GuiWindow::GuiWindow() : window{ nullptr }, context{ nullptr }, width{ 0 }, heig
 GuiWindow::~GuiWindow() { OnDestroy(); }
 
 bool GuiWindow::OnCreate(std::string name, int width_, int height_) {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) < 0) {
         Debug::FatalError("Failed to initialize SDL", __FILE__, __LINE__);
         return false;
     }

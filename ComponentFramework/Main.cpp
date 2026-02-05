@@ -18,7 +18,7 @@ int main(int argc, char* args[]) {
 	delete gsm;
 	_CrtDumpMemoryLeaks();
 	ReportLeaks();
-	std::cout << "\n--- Program Ended. Press Enter to close console ---" << std::endl;
-	std::cin.get();
+	//std::cout << "\n--- Program Ended. Press Enter to close console ---" << std::endl;
+	//std::cin.get();
 	exit(0);
 }
