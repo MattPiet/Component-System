@@ -73,7 +73,7 @@
     <IncludePath>C:\GameDev\OpenGL\include;C:\GameDev\SDL2\include;C:\GameDev\MathLibrary\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)GameDev\imgui\include;$(ProjectDir)GameDev\MathLibrary\include;$(ProjectDir)GameDev\OpenGL\include;$(ProjectDir)GameDev\SDL3\include;$(ProjectDir)GameDev\SDL3\include\SDL3_image;$(ProjectDir)GameDev\MathLibraryEx\include;$(ProjectDir)GameDev\imgui\include\GLFW;$(ProjectDir)headers;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)GameDev\imgui\include\GLFW;$(ProjectDir)GameDev\imgui\include;$(ProjectDir)GameDev\MathLibrary\include;$(ProjectDir)GameDev\OpenGL\include;$(ProjectDir)GameDev\SDL3\include;$(ProjectDir)GameDev\SDL3\include\SDL3_image;$(ProjectDir)GameDev\MathLibraryEx\include;$(ProjectDir)headers;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -132,14 +132,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="C:\GameDev\imgui\imgui.cpp" />
-    <ClCompile Include="C:\GameDev\imgui\imgui_demo.cpp" />
-    <ClCompile Include="C:\GameDev\imgui\imgui_draw.cpp" />
-    <ClCompile Include="C:\GameDev\imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="C:\GameDev\imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="C:\GameDev\imgui\imgui_impl_sdl3.cpp" />
-    <ClCompile Include="C:\GameDev\imgui\imgui_tables.cpp" />
-    <ClCompile Include="C:\GameDev\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="GameDev\imgui\imgui.cpp" />
+    <ClCompile Include="GameDev\imgui\imgui_demo.cpp" />
+    <ClCompile Include="GameDev\imgui\imgui_draw.cpp" />
+    <ClCompile Include="GameDev\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="GameDev\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="GameDev\imgui\imgui_impl_sdl3.cpp" />
+    <ClCompile Include="GameDev\imgui\imgui_tables.cpp" />
+    <ClCompile Include="GameDev\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="src\Core\Actor.cpp" />
     <ClCompile Include="src\Core\Debug.cpp" />
@@ -158,16 +158,16 @@
     <ClCompile Include="src\UI\UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\GameDev\imgui\imconfig.h" />
-    <ClInclude Include="C:\GameDev\imgui\imgui.h" />
-    <ClInclude Include="C:\GameDev\imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="C:\GameDev\imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="C:\GameDev\imgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="C:\GameDev\imgui\imgui_impl_sdl3.h" />
-    <ClInclude Include="C:\GameDev\imgui\imgui_internal.h" />
-    <ClInclude Include="C:\GameDev\imgui\imstb_rectpack.h" />
-    <ClInclude Include="C:\GameDev\imgui\imstb_textedit.h" />
-    <ClInclude Include="C:\GameDev\imgui\imstb_truetype.h" />
+    <ClInclude Include="GameDev\imgui\imconfig.h" />
+    <ClInclude Include="GameDev\imgui\imgui.h" />
+    <ClInclude Include="GameDev\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="GameDev\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="GameDev\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="GameDev\imgui\imgui_impl_sdl3.h" />
+    <ClInclude Include="GameDev\imgui\imgui_internal.h" />
+    <ClInclude Include="GameDev\imgui\imstb_rectpack.h" />
+    <ClInclude Include="GameDev\imgui\imstb_textedit.h" />
+    <ClInclude Include="GameDev\imgui\imstb_truetype.h" />
     <ClInclude Include="headers\Core\Actor.h" />
     <ClInclude Include="headers\Core\Component.h" />
     <ClInclude Include="headers\Core\Debug.h" />

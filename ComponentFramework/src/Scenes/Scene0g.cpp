@@ -273,6 +273,10 @@ void Scene0g::RenderGUI()
 }
 
 void Scene0g::Update(const float deltaTime) {
+	static float totalTime = 0.0f;
+	totalTime += deltaTime;
+	ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(-1.0f, 0.0f, 0.0f)) *
+		QMath::angleAxisRotation(totalTime * 10.0f, Vec3(0.0f, 0.0f, 1.0f)));
 	if (gamepad && SDL_GamepadConnected(gamepad)) {
 		const float deadzone = 0.2f; // 20% deadzone
 	
