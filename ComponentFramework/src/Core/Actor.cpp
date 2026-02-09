@@ -20,7 +20,6 @@ bool Actor::OnCreate() {
 
 Actor::~Actor() {
 	OnDestroy();
-	
 }
 
 void Actor::OnDestroy() {

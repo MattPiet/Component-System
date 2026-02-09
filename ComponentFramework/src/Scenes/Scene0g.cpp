@@ -12,6 +12,8 @@
 #include <Graphics/SkyBoxComponent.h>
 #include <random>
 
+
+
 ///ImGui includes
 #include <UI/UIManager.h>
 
@@ -42,10 +44,10 @@ bool Scene0g::OnCreate() {
 		"textures/skybox/StarSkyboxNegY.png",
 		"textures/skybox/StarSkyboxPosz.png",
 		"textures/skybox/StarSkyboxnegz.png");
-
 	camera->OnCreate();
+
 	std::unique_ptr<Actor> GameBoardActor = std::make_unique<Actor>(nullptr);
-	GameBoardActor->AddComponent<MaterialComponent>(nullptr, "textures/ChessBoard.png");
+	GameBoardActor->AddComponent<MaterialComponent>(nullptr, "textures/Red&Black_Board.png");
 	GameBoardActor->AddComponent<MeshComponent>(nullptr, "meshes/Plane.obj");
 	GameBoardActor->AddComponent<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
 	GameBoardActor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, -1.5f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
@@ -56,52 +58,31 @@ bool Scene0g::OnCreate() {
 
 	ActorList.emplace("GameBoard", std::move(GameBoardActor));
 	
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dist(-20.5f, 20.5f); // Bounds of your 5x5 board
-
-	std::vector<Vec3> spawnedPositions;
-	float minDistance = 2.0f; // The "radius" of a Mario to prevent overlap
 	auto gameBoardIt = ActorList.find("GameBoard");
 	Actor* gameBoardParent = (gameBoardIt != ActorList.end()) ? gameBoardIt->second.get() : nullptr;
 
+	std::unique_ptr<Actor> ParentActor = std::make_unique<Actor>(gameBoardParent);
+	ParentActor->AddComponent<MaterialComponent>(nullptr, "textures/blackCheckerPiece.png");
+	ParentActor->AddComponent<MeshComponent>(nullptr, "meshes/CheckerPiece.obj");
+	ParentActor->OnCreate();
+	ActorList.emplace("ParentPiece", std::move(ParentActor));
+	std::unique_ptr<Actor> ParentActorRED = std::make_unique<Actor>(gameBoardParent);
+	ParentActorRED->AddComponent<MaterialComponent>(nullptr, "textures/redCheckerPiece.png");
+	ParentActorRED->OnCreate();
+	ActorList.emplace("ParentPieceRED", std::move(ParentActorRED));
 
-	for (int i = 0; i < 200; i++) {
+	for (int i = 0; i < 24; i++) {
 		std::unique_ptr<Actor> actor = std::make_unique<Actor>(gameBoardParent);
-		actor->AddComponent<MaterialComponent>(nullptr, "textures/mario_main.png");
-		actor->AddComponent<MeshComponent>(nullptr, "meshes/Mario.obj");
-		actor->AddComponent<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
-		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f,0.0f,0.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
+		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, 0.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 		actor->OnCreate();
-		Vec3 randomPos;
-		bool validPos = false;
-		int attempts = 0;
-
-		while (!validPos && attempts < 100) {
-			randomPos = Vec3(dist(gen), dist(gen),0.0f);
-			validPos = true;
-			attempts++;
-
-			for (const Vec3& pos : spawnedPositions) {
-				if (VMath::distance(randomPos, pos) < minDistance) {
-					validPos = false;
-					break;
-				}
-			}
+		std::string actorName;
+		if (i % 2 == 0) {
+			actorName = "CheckerPieceB" + std::to_string(i / 2);
 		}
-		spawnedPositions.push_back(randomPos);
-		actor->GetComponent<TransformComponent>()->SetPosition(Vec3(randomPos.x, randomPos.y,1.5f));
-		actor->GetComponent<TransformComponent>()->SetOrientation(
-			QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f))
-		);
-		std::string actorName = "Mario" + std::to_string(i);
-		if (actorName == "Mario" + std::to_string(50)) {
-			actor->GetComponent<MaterialComponent>()->LoadImage("textures/Lmario_main.png");
-			actor->GetComponent<TransformComponent>()->SetScale(Vec3(0.5f, 0.5f, 0.5f));
-			actor->GetComponent<TransformComponent>()->SetPosition
-			(Vec3(actor->GetComponent<TransformComponent>()->GetPosition().x, 
-				actor->GetComponent<TransformComponent>()->GetPosition().y, 0.555f));
+		else {
+			actorName = "CheckerPieceR" + std::to_string(i / 2);
 		}
+		actor->GetComponent<TransformComponent>()->SetScale(Vec3(0.5f, 0.5f, 0.5f));
 		ActorList.emplace(actorName, std::move(actor));
 	}
 
@@ -113,20 +94,51 @@ bool Scene0g::OnCreate() {
 			gamepad = SDL_OpenGamepad(gamepads[0]);
 			Debug::Info("Gamepad found on startup.", __FILE__, __LINE__);
 		}
-		SDL_free(gamepads); // Important: SDL_GetGamepads returns an allocated array
+		SDL_free(gamepads); 
 	}
 	Vec3 offset = Vec3(0.0f, 0.0f, 15.0f);
 	Vec3 rotatedOffset = QMath::rotate(offset, camera->GetOrientation());
 	Vec3 cameraPos = Vec3(0.0f, 0.0f, 0.0f) + rotatedOffset;
 	camera->SetView(camera->GetOrientation(), cameraPos);
 	camera->DontTrackXYRotations();
+
+	Vec3 startPos = Vec3(-22.25f, -22.25f, 0.0f);
+	float xStep = 6.35f;
+	float yStep = 6.35f;
+
+	for (int i = 0; i < 12; i++) {
+		int row = i / 4;
+		int col = (i % 4) * 2 + (row % 2);
+
+		std::string name = "CheckerPieceB" + std::to_string(i);
+		if (ActorList.count(name)) {
+			float newX = startPos.x + (col * xStep);
+			float newY = startPos.y + (row * yStep);
+			ActorList.at(name)->GetComponent<TransformComponent>()->SetPosition(Vec3(newX, newY, 0.0f));
+		}
+	}
+
+	for (int j = 0; j <= 12; j++) {
+	
+		int index = j;
+		int row = (index / 4) + 5; 
+		int col = (index % 4) * 2 + (row % 2);
+
+		std::string name = "CheckerPieceR" + std::to_string(j);
+
+		if (ActorList.count(name)) {
+			float newX = startPos.x + (col * xStep);
+			float newY = startPos.y + (row * yStep);
+			ActorList.at(name)->GetComponent<TransformComponent>()->SetPosition(Vec3(newX, newY, 0.0f));
+		}
+	}
 	return true;
 }
 
 void Scene0g::OnDestroy() {
 
 
-	ActorList.clear(); // Empty the map container
+	ActorList.clear(); 
 	camera.reset();
 	SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
 
@@ -140,7 +152,6 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
     case SDL_EVENT_KEY_DOWN:
 		switch (sdlEvent.key.scancode) {
 			case SDL_SCANCODE_W:
-				//drawInWireMode = !drawInWireMode;
 				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, -1.0f)));
 				break;
 			case SDL_SCANCODE_S:
@@ -191,7 +202,7 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 						gamepad = SDL_OpenGamepad(gamepads[0]);
 						Debug::Info("Gamepad found on Event.", __FILE__, __LINE__);
 					}
-					SDL_free(gamepads); // Important: SDL_GetGamepads returns an allocated array
+					SDL_free(gamepads); 
 				}
 			}
 			break;
@@ -204,9 +215,6 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 			break;
 		
 			break;
-		
-	
-		// You can still use events for "one-tap" actions like jumping or menus
 	case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 		switch (sdlEvent.gbutton.button) {
 		case SDL_GAMEPAD_BUTTON_DPAD_UP:
@@ -238,15 +246,6 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 
 	case SDL_EVENT_MOUSE_BUTTON_UP:
 	break;
-
-	//case SDL_EVENT_MOUSE_WHEEL:
-	//		if(sdlEvent.wheel.y > 0) {
-	//			camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, -1.0f)));
-	//		}
-	//		else if(sdlEvent.wheel.y < 0) {
-	//				camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(Vec3(0.0f, 0.0f, 1.0f)));
-	//		}
-	//	break;
 	default:
 		break;
     }
@@ -275,13 +274,10 @@ void Scene0g::RenderGUI()
 void Scene0g::Update(const float deltaTime) {
 	static float totalTime = 0.0f;
 	totalTime += deltaTime;
-	ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(-1.0f, 0.0f, 0.0f)) *
-		QMath::angleAxisRotation(totalTime * 10.0f, Vec3(0.0f, 0.0f, 1.0f)));
-	if (gamepad && SDL_GamepadConnected(gamepad)) {
-		const float deadzone = 0.2f; // 20% deadzone
 	
+	if (gamepad && SDL_GamepadConnected(gamepad)) {
+		const float deadzone = 0.2f; 
 
-		// SDL_GetGamepadAxis returns -32768 to 32767
 		float stickX = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX) / 32767.0f;
 		float stickY = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY) / 32767.0f;
 
@@ -291,7 +287,7 @@ void Scene0g::Update(const float deltaTime) {
 		if (SDL_fabsf(stickY) > deadzone) movement.z = stickY;
 
 		if (movement.x != 0.0f || movement.z != 0.0f) {
-			// Apply movement scaled by speed and delta time
+
 			camera->SetView(camera->GetOrientation(),
 				camera->freeCameraMovement(movement * CameraSpeed * deltaTime));
 		}
@@ -300,20 +296,16 @@ void Scene0g::Update(const float deltaTime) {
 		float rightStickY = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY) / 32767.0f;
 
 		if (SDL_fabsf(rightStickX) > deadzone || SDL_fabsf(rightStickY) > deadzone) {
-			// 1. Update your stored angles (Add these floats to your class)
+
 			 m_Yaw += -rightStickX * m_Sensitivity * deltaTime;
 			 m_Pitch += -rightStickY * m_Sensitivity * deltaTime;
 
-			// 2. Keep the camera from flipping over
 			if (m_Pitch > 89.0f)  m_Pitch = 89.0f;
 			if (m_Pitch < -89.0f) m_Pitch = -89.0f;
 
-			// 3. Create two clean Quaternions from the absolute angles
-			// Note: We use the world axes (0,1,0) and (1,0,0)
 			Quaternion qYaw = QMath::angleAxisRotation(m_Yaw, Vec3(0.0f, 1.0f, 0.0f));
 			Quaternion qPitch = QMath::angleAxisRotation(m_Pitch, Vec3(1.0f, 0.0f, 0.0f));
 
-			// 4. Combine them (Order matters: Yaw * Pitch is standard for FPS)
 			camera->GetComponent<TransformComponent>()->SetOrientation(qYaw * qPitch);
 			camera->SetView(camera->GetComponent<TransformComponent>()->GetQuaternion(), camera->freeCameraMovement(movement * CameraSpeed * deltaTime));
 		}
@@ -334,9 +326,6 @@ void Scene0g::Render() const {
 	glUniformMatrix4fv(camera->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, MMath::inverse(MMath::toMatrix4(camera->GetOrientation())));
 	glBindTexture(GL_TEXTURE_CUBE_MAP, camera->GetComponent<SkyBoxComponent>()->getTextureID());
 	camera->GetComponent<MeshComponent>()->Render();
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
 	glDepthMask(GL_TRUE);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
@@ -351,19 +340,31 @@ void Scene0g::Render() const {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	for (const auto& pair : ActorList) {
-		Actor* actor = pair.second.get();
-		glUseProgram(actor->GetComponent<ShaderComponent>()->GetProgram());
-		glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
+	glUseProgram(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetProgram());
+	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
+	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
+    glUniform3fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("lightPos"), 1, Vec3(-5.0f, 5.0f, -1.0f));
 
-		glUniformMatrix4fv(actor->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
-		glUniformMatrix4fv(actor->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
-		glUniformMatrix4fv(actor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"), 1, GL_FALSE, actor->GetModelMatrix());
-		glUniform3fv(actor->GetComponent<ShaderComponent>()->GetUniformID("lightPos"), 1, Vec3(-5.0f, 5.0f, -1.0f));
-		actor->GetComponent<MeshComponent>()->Render();
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glUseProgram(0);
+	for (auto const& [name, actor] : ActorList) {
+		if (name == "ParentPiece" || name == "ParentPieceRED") continue;
+		if (name == "GameBoard") {
+			glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
+		}
+		else if (name.find("CheckerPieceB") != std::string::npos) {
+			glBindTexture(GL_TEXTURE_2D, ActorList.at("ParentPiece")->GetComponent<MaterialComponent>()->getTextureID());
+		}
+		else if (name.find("CheckerPieceR") != std::string::npos) {
+			glBindTexture(GL_TEXTURE_2D, ActorList.at("ParentPieceRED")->GetComponent<MaterialComponent>()->getTextureID());
+		}
+		glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"), 1, GL_FALSE, actor->GetModelMatrix());
+		if (name == "GameBoard") {
+			actor->GetComponent<MeshComponent>()->Render();
+		}
+		else {
+			ActorList.at("ParentPiece")->GetComponent<MeshComponent>()->Render();
+		}
 	}
+		glUseProgram(0);
 }
 
 

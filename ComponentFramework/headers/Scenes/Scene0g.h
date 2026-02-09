@@ -29,6 +29,7 @@ private:
 	Matrix4 modelMatrix;
 
 	std::unordered_map<std::string, std::unique_ptr<Actor>> ActorList;
+	
 
 	// 1. Update your stored angles (Add these floats to your class)
 	float m_Yaw = 0.0f;
