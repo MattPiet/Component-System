@@ -56,6 +56,10 @@ bool SkyBoxComponent::OnCreate() {
 }
 
 void SkyBoxComponent::OnDestroy() {
+	if (ID != 0) {
+		glDeleteTextures(1, &ID);
+		ID = 0;
+	}
 	posXFileName = nullptr;
 	negXFileName = nullptr;
 	posYFileName = nullptr;

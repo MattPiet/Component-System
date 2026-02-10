@@ -99,6 +99,11 @@ inline static void ReportLeaks() {
     std::cout << "--------------------------------\n\n";
 }
 
+inline void ShutdownMemoryMonitor() {
+    memoryTracker.clear();
+    memoryTracker.shrink_to_fit(); // This is the magic line that actually frees the 2520 bytes
+}
+
 #define M_new new(__FILE__, __LINE__)
 
 #endif

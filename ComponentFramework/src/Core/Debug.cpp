@@ -56,3 +56,7 @@ void Debug::Error(const std::string& message_, const std::string& fileName_, con
 void Debug::FatalError(const std::string& message_, const std::string& fileName_, const int line_) {
 	Log(MessageType::TYPE_FATAL_ERROR, "[FATAL ERROR]: " + message_, fileName_, line_);
 }
+void Debug::Shutdown() {
+	logFileName.clear();
+	logFileName.shrink_to_fit(); 
+}

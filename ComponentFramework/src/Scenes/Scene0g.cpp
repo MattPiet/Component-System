@@ -173,6 +173,10 @@ void Scene0g::OnDestroy() {
 	ActorList.clear(); 
 	camera.reset();
 	Resources.clear();
+	if (gamepad) {
+		SDL_CloseGamepad(gamepad); 
+		gamepad = nullptr;
+	}
 	SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
 
 }

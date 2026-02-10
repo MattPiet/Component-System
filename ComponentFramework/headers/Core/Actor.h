@@ -17,7 +17,7 @@ protected:
 
 public:
 	Actor(Component* parent_);
-	~Actor();
+	virtual ~Actor();
 	virtual bool OnCreate() override;
 	virtual void OnDestroy() override;
 	virtual void Update(const float deltaTime) override;
