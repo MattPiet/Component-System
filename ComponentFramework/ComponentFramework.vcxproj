@@ -148,6 +148,7 @@
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\Graphics\CameraActor.cpp" />
+    <ClCompile Include="src\Graphics\LightActor.cpp" />
     <ClCompile Include="src\Graphics\MaterialComponent.cpp" />
     <ClCompile Include="src\Graphics\MeshComponent.cpp" />
     <ClCompile Include="src\Graphics\ShaderComponent.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="headers\Core\Timer.h" />
     <ClInclude Include="headers\Core\Window.h" />
     <ClInclude Include="headers\Graphics\CameraActor.h" />
+    <ClInclude Include="headers\Graphics\LightActor.h" />
     <ClInclude Include="headers\Graphics\MaterialComponent.h" />
     <ClInclude Include="headers\Graphics\MeshComponent.h" />
     <ClInclude Include="headers\Graphics\ShaderComponent.h" />

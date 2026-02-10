@@ -39,10 +39,10 @@ void Trackball::HandleEvents(const SDL_Event& sdlEvent) {
 }
 
 void Trackball::onLeftMouseDown(int x, int y) {
-	beginV = getMouseVector(x, y);
-	// Keep track of the quat before we start rotating
-	prevQuat = mouseRotationQuat;
 	mouseDown = true;
+	lastMouseX = x;
+	lastMouseY = y;
+
 }
 
 void Trackball::onLeftMouseUp(int x, int y) {
@@ -50,25 +50,19 @@ void Trackball::onLeftMouseUp(int x, int y) {
 }
 
 void Trackball::onMouseMove(int x, int y) {
-	if (mouseDown == false) return;
-	endV = getMouseVector(x, y);
-	float cosAngle = VMath::dot(beginV, endV);
-	if ( cosAngle <= VERY_SMALL){
-		printf("%f\n",cosAngle);
-	}
-	float angle = acos(cosAngle) * 180.0f / M_PI; /// acos() returns radians must convert to degrees
-	Vec3 rotAxis = VMath::cross(beginV, endV);
+	if (!mouseDown) return;
+	float deltaX = static_cast<float>(x - lastMouseX);
+	float deltaY = static_cast<float>(y - lastMouseY);
+	m_Yaw += -deltaX * m_Sensitivity;
+	m_Pitch += -deltaY * m_Sensitivity;
+	if (m_Pitch > 89.0f)  m_Pitch = 89.0f;
+	if (m_Pitch < -89.0f) m_Pitch = -89.0f;
 
-	// only track the axes we want
-	if (Trackingx == false) {
-		rotAxis.x = 0.0f;
-	}
-	if (Trackingz == false) {
-		rotAxis.z = 0.0f;
-	}
-
-	Quaternion delta = QMath::angleAxisRotation(angle, rotAxis); // UN - Songho used the name "delta" quaternion. I like that as it's the change in rotation
-	mouseRotationQuat = prevQuat * delta; // UN - Spent a day realizing that order of multiplication is important here
+	Quaternion qYaw = QMath::angleAxisRotation(m_Yaw, Vec3(0.0f, 1.0f, 0.0f));
+	Quaternion qPitch = QMath::angleAxisRotation(m_Pitch, Vec3(1.0f, 0.0f, 0.0f));
+	mouseRotationQuat = qYaw * qPitch;
+	lastMouseX = x;
+	lastMouseY = y;
 }
 
 ///https://www.khronos.org/opengl/wiki/Object_Mouse_Trackball

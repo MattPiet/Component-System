@@ -6,6 +6,7 @@
 #include <QMath.h>
 #include <Core/Actor.h>
 #include <Graphics/CameraActor.h>
+#include <Graphics/LightActor.h>
 #include <unordered_map>
 
 using namespace MATH;
@@ -29,6 +30,7 @@ private:
 	Matrix4 modelMatrix;
 
 	std::unordered_map<std::string, std::unique_ptr<Actor>> ActorList;
+	std::unordered_map<std::string, std::unique_ptr<LightActor>> Resources;
 	
 
 	// 1. Update your stored angles (Add these floats to your class)

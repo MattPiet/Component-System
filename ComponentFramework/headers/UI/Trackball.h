@@ -13,6 +13,10 @@ union SDL_Event;
 		Quaternion prevQuat;
 		Matrix4 invNDC;			/// the inverse of the viewportNDC matrix
 		Vec3 beginV, endV;		/// Begin and end points after being transformed by invNDC
+		float m_Yaw = 0.0f;
+		float m_Pitch = 0.0f;
+		int lastMouseX, lastMouseY;
+		float m_Sensitivity = 0.3f; 
 	public:
 		bool Trackingx = true;
 		bool Trackingz = true;

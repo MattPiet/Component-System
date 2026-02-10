@@ -4,25 +4,28 @@
 layout(location = 0) out vec4 fragColor;
 
 layout(location = 0) in vec3 vertNormal;
-layout(location = 1) in vec3 lightDir;
-layout(location = 2) in vec3 eyeDir; 
-layout(location = 3) in vec2 textureCoords; 
+layout(location = 1) in vec3 lightDir[5];
+layout(location = 6) in vec3 eyeDir; 
+layout(location = 7) in vec2 textureCoords; 
+
+uniform vec4 Specular[5];
+uniform vec4 Diffuse[5];
+//uniform vec4 Ambient[5]; could use later for what idk thought id do it
 
 uniform sampler2D myTexture; 
 
 void main() {
-    vec4 ks = vec4(0.3, 0.3, 0.3, 0.0);
-	vec4 kd = vec4(0.6, 0.6, 0.3, 0.0);
-	vec4 ka = 0.1 * kd;
+	vec4 ka = 0.6f * Diffuse[0];
+	vec4 colour = vec4(0.0f);
 	vec4 kt = texture(myTexture,textureCoords); 
-
-	float diff = max(dot(vertNormal, lightDir), 0.0);
-
-	/// Reflection is based incedent which means a vector from the light source
-	/// not the direction to the light source so flip the sign
-	vec3 reflection = normalize(reflect(-lightDir, vertNormal));
+	
+		for(int i = 0; i < 5; i++){
+	float diff = max(dot(lightDir[i], vertNormal), 0.0);
+	vec3 reflection = normalize(reflect(-lightDir[i], vertNormal));
 
 	float spec = max(dot(eyeDir, reflection), 0.0);
-	spec = pow(spec,14.0);
-	fragColor =  (ka + (diff * kd) + (spec * ks)) * kt;	
-}
+	spec = pow(spec,35.0);
+	colour += (diff * Diffuse[i]) + (spec * Specular[i]);
+		}
+	fragColor =  (-ka + colour) * kt;	
+	}

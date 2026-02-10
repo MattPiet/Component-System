@@ -141,6 +141,9 @@
     <ClCompile Include="GameDev\imgui\imgui_widgets.cpp">
       <Filter>extras\CPP</Filter>
     </ClCompile>
+    <ClCompile Include="src\Graphics\LightActor.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\Core\Scene.h">
@@ -226,6 +229,9 @@
     </ClInclude>
     <ClInclude Include="GameDev\imgui\imstb_truetype.h">
       <Filter>extras\heaaders</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Graphics\LightActor.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
