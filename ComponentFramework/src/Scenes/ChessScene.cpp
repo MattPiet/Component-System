@@ -1,7 +1,7 @@
 #include <glew.h>
 #include <iostream>
 #include <SDL.h>
-#include <Scenes/Scene0g.h>
+#include <Scenes/ChessScene.h>
 #include <MMath.h>
 #include <Core/Debug.h>
 #include <Core/GuiWindow.h>
@@ -14,7 +14,7 @@
 #include <UI/UIManager.h>
 #include <Utils/MemoryMonitor.h>
 
-Scene0g::Scene0g() :
+ChessScene::ChessScene() :
 drawInWireMode{false},
 window{ nullptr }, 
 context{ nullptr }
@@ -22,7 +22,7 @@ context{ nullptr }
 	Debug::Info("Created Scene0: ", __FILE__, __LINE__);
 }
 
-Scene0g::~Scene0g() {
+ChessScene::~ChessScene() {
 	Debug::Info("Deleted Scene0: ", __FILE__, __LINE__);
 }
 /*
@@ -30,7 +30,7 @@ Scene0g::~Scene0g() {
 	I have it built into the project file so it should just run without any issues at all 
 	let me know if something is bugged and Ill fix it instantly.
 */
-bool Scene0g::OnCreate() {
+bool ChessScene::OnCreate() {
 	// me make camera here I wanted to have a skybox so I just made it a material comp
 	camera = std::make_unique<CameraActor>(nullptr, 45.0f, 16.0f / 9.0f, 0.5f, 100.0f);
 	camera->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, -5.0f), Quaternion());
@@ -47,7 +47,7 @@ bool Scene0g::OnCreate() {
 
 	// this is the foundation all living things come back to the game board. Literally everything except the camera is parented to it
 	std::unique_ptr<Actor> GameBoardActor = std::make_unique<Actor>(nullptr);
-	GameBoardActor->AddComponent<MaterialComponent>(nullptr, "textures/Red&Black_Board.png");
+	GameBoardActor->AddComponent<MaterialComponent>(nullptr, "textures/ChessBoard.png");
 	GameBoardActor->AddComponent<MeshComponent>(nullptr, "meshes/Plane.obj");
 	GameBoardActor->AddComponent<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
 	GameBoardActor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, -1.5f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
@@ -61,61 +61,105 @@ bool Scene0g::OnCreate() {
 	// go get board and test id its actually valid
 	auto gameBoardIt = ActorList.find("GameBoard");
 	Actor* gameBoardParent = (gameBoardIt != ActorList.end()) ? gameBoardIt->second.get() : nullptr;
-	// This is the parent piece for all checker pieces.
+
+	// Im not commenting alla this its setting up meshes and mats
 	std::unique_ptr<Actor> ParentActor = std::make_unique<Actor>(gameBoardParent);
-	ParentActor->AddComponent<MaterialComponent>(nullptr, "textures/blackCheckerPiece.png");
-	ParentActor->AddComponent<MeshComponent>(nullptr, "meshes/CheckerPiece.obj");
+	ParentActor->AddComponent<MaterialComponent>(nullptr, "textures/White Chess Base Colour.png");
+	ParentActor->AddComponent<MeshComponent>(nullptr, "meshes/Rook.obj");
 	ParentActor->OnCreate();
-	ActorList.emplace("ParentPiece", std::move(ParentActor));
-	// This is basically a material for all the Red ones
-	std::unique_ptr<Actor> ParentActorRED = std::make_unique<Actor>(gameBoardParent);
-	ParentActorRED->AddComponent<MaterialComponent>(nullptr, "textures/redCheckerPiece.png");
-	ParentActorRED->OnCreate();
-	ActorList.emplace("ParentPieceRED", std::move(ParentActorRED));
-	// This actually makes every piece assigning them to be red or black.
-	for (int i = 0; i < 24; i++) {
+	Resources.emplace("ParentPiece", std::move(ParentActor));
+
+	std::unique_ptr<Actor> BlackMaterial = std::make_unique<Actor>(gameBoardParent);
+	BlackMaterial->AddComponent<MaterialComponent>(nullptr, "textures/Black Chess Base Colour.png");
+	BlackMaterial->OnCreate();
+	Resources.emplace("BlackMaterial", std::move(BlackMaterial));
+
+	std::unique_ptr<Actor> Kight = std::make_unique<Actor>(gameBoardParent);
+	Kight->AddComponent<MeshComponent>(nullptr, "meshes/Knight.obj");
+	Kight->OnCreate();
+	Resources.emplace("KnightMesh", std::move(Kight));
+
+	std::unique_ptr<Actor> Bishop = std::make_unique<Actor>(gameBoardParent);
+	Bishop->AddComponent<MeshComponent>(nullptr, "meshes/Bishop.obj");
+	Bishop->OnCreate();
+	Resources.emplace("BishopMesh", std::move(Bishop));
+
+	std::unique_ptr<Actor> Queen = std::make_unique<Actor>(gameBoardParent);
+	Queen->AddComponent<MeshComponent>(nullptr, "meshes/Queen.obj");
+	Queen->OnCreate();
+	Resources.emplace("QueenMesh", std::move(Queen));
+
+	std::unique_ptr<Actor> King = std::make_unique<Actor>(gameBoardParent);
+	King->AddComponent<MeshComponent>(nullptr, "meshes/King.obj");
+	King->OnCreate();
+	Resources.emplace("KingMesh", std::move(King));
+
+	std::unique_ptr<Actor> Pawn = std::make_unique<Actor>(gameBoardParent);
+	Pawn->AddComponent<MeshComponent>(nullptr, "meshes/Pawn.obj");
+	Pawn->OnCreate();
+	Resources.emplace("PawnMesh", std::move(Pawn));
+
+	// Make names for the map
+	std::vector<std::string> pieceTypes = { "Rook", "Knight", "Bishop", "Queen", "King", "Bishop", "Knight", "Rook" };
+
+	for (int i = 0; i < 32; i++) {
+		// parent everything to the board
 		std::unique_ptr<Actor> actor = std::make_unique<Actor>(gameBoardParent);
-		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, 0.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
-		actor->OnCreate();
-		std::string actorName;
-		if (i % 2 == 0) {
-			actorName = "CheckerPieceB" + std::to_string(i / 2);
+		// once we pass 16 the pieces are black
+		bool isBlack = (i >= 16);
+		std::string colour = isBlack ? "B" : "W";
+		std::string pieceType;
+		// go throught the piecetypes index
+		int localIndex = i % 16;
+		if (localIndex < 8) {
+			pieceType = pieceTypes[localIndex];
 		}
 		else {
-			actorName = "CheckerPieceR" + std::to_string(i / 2);
+			pieceType = "Pawn";
 		}
-		actor->GetComponent<TransformComponent>()->SetScale(Vec3(0.5f, 0.5f, 0.5f));
+		std::string actorName = pieceType + colour + std::to_string(i);
+		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.5f, 0.5f, 0.5f));
+		actor->OnCreate();
+
 		ActorList.emplace(actorName, std::move(actor));
 	}
-
-	// This code actually sets up their positions on the board.
+	// print the names cuz why not
+	for (const auto& pair : ActorList) {
+		const std::string& name = pair.first;
+		Actor* actor = pair.second.get();
+		std::cout << "Actor Name: " << name << std::endl;
+	}
+	// turn the white knights cuz they face backwards
+	ActorList.at("KnightW1")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f,Vec3(0.0f,1.0f,0.0f)));
+	ActorList.at("KnightW6")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
 	Vec3 startPos = Vec3(-22.25f, -22.25f, 0.0f);
 	float xStep = 6.35f;
 	float yStep = 6.35f;
-	for (int i = 0; i < 12; i++) {
-		// Basically setup board rows and columns. For the near end
-		int row = i / 4;
-		int col = (i % 4) * 2 + (row % 2);
-		// name it and check if its valid
-		std::string name = "CheckerPieceB" + std::to_string(i);
+
+	for (int i = 0; i < 32; i++) {
+		// same as above just finding the name instead of setting it
+		bool isBlack = (i >= 16);
+		int localIdx = i % 16;
+		std::string colorSuffix = isBlack ? "B" : "W";
+		std::string pieceType = (localIdx < 8) ? pieceTypes[localIdx] : "Pawn";
+		std::string name = pieceType + colorSuffix + std::to_string(i);
+
 		if (ActorList.count(name)) {
-			// if its valid set its position based on the row and column
+			int row, col;
+			// For the white pieces just do simple rows and columns
+			if (!isBlack) {
+				row = localIdx / 8;
+				col = localIdx % 8;
+			}
+			// black pieces are flipped so reverse the row but columns are the same
+			else {
+				row = (localIdx < 8) ? 7 : 6;
+				col = localIdx % 8;
+			}
+
 			float newX = startPos.x + (col * xStep);
 			float newY = startPos.y + (row * yStep);
-			ActorList.at(name)->GetComponent<TransformComponent>()->SetPosition(Vec3(newX, newY, 0.0f));
-		}
-	}
-	// This is the same thing but for the far end
-	for (int j = 0; j <= 12; j++) {
-		int index = j;
-		int row = (index / 4) + 5; 
-		int col = (index % 4) * 2 + (row % 2);
-		// name it and check if its valid
-		std::string name = "CheckerPieceR" + std::to_string(j);
-		// if its valid set its position based on the row and column
-		if (ActorList.count(name)) {
-			float newX = startPos.x + (col * xStep);
-			float newY = startPos.y + (row * yStep);
+			// move the piece to the right spot
 			ActorList.at(name)->GetComponent<TransformComponent>()->SetPosition(Vec3(newX, newY, 0.0f));
 		}
 	}
@@ -148,7 +192,7 @@ bool Scene0g::OnCreate() {
 		Light->SetDiffuse(diffuseColors[i]);
 		Light->SetAmbient(Vec4(0.05f, 0.05f, 0.05f, 1.0f));
 		// Put them into a resource map.... im just being fancy I couldve made an array of them but this is more fun
-		Resources.emplace(lightName, std::move(Light));
+		Lights.emplace(lightName, std::move(Light));
 	};
 	// joystick setup
 	int count;
@@ -164,29 +208,23 @@ bool Scene0g::OnCreate() {
 	Vec3 rotatedOffset = QMath::rotate(offset, camera->GetOrientation());
 	Vec3 cameraPos = Vec3(0.0f, 0.0f, 0.0f) + rotatedOffset;
 	camera->SetView(camera->GetOrientation(), cameraPos);
-	//camera->DontTrackXYRotations();
-
-	//ActorList.at("CheckerPieceR0")->GetComponent<TransformComponent>()->SetPosition(Vec3(0.0f, 0.0f, 5.0f));
 	return true;
 }
 
-void Scene0g::OnDestroy() {
+void ChessScene::OnDestroy() {
 	// begone memory leaks
 	ActorList.clear(); 
 	camera.reset();
-	Resources.clear();
+	Lights.clear();
 	if (gamepad) {
 		SDL_CloseGamepad(gamepad); 
 		gamepad = nullptr;
 	}
 	SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
-
 }
 
-void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
-	//make camera respond to input
+void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 		camera->UpdateViewMatrix(sdlEvent);
-	
 	switch( sdlEvent.type ) {
     case SDL_EVENT_KEY_DOWN:
 		switch (sdlEvent.key.scancode) {
@@ -195,6 +233,7 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 				break;
 			case SDL_SCANCODE_LEFT:
 				// move board
+				// it dont work cuz it gets overriden in update but hey its here
 				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
 					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
 				break;
@@ -274,7 +313,7 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
     }
 }
 
-void Scene0g::RenderGUI()
+void ChessScene::RenderGUI()
 {
 	//im gui stuff. I havent really done anything with it 
 	// but I wanna put the output of the memory monitor in it whenever I get around to it
@@ -296,7 +335,7 @@ void Scene0g::RenderGUI()
 	UIManager::EndWindow();
 }
 
-void Scene0g::Update(const float deltaTime) {
+void ChessScene::Update(const float deltaTime) {
 	static float totalTime = 0.0f;
 	totalTime += deltaTime;
 	Vec3 leftPos = Vec3(-5.0f, -1.5f, -5.0f);
@@ -362,7 +401,7 @@ void Scene0g::Update(const float deltaTime) {
 	}
 }
 
-void Scene0g::Render() const {
+void ChessScene::Render() const {
 	/// Set the background color then clear the screen
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -379,13 +418,13 @@ void Scene0g::Render() const {
 	glDepthMask(GL_TRUE);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-
 	if (drawInWireMode) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -393,12 +432,11 @@ void Scene0g::Render() const {
 	glUseProgram(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetProgram());
 	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
 	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
-
 	// render all the lights in an array
 	Vec4 allAmbient[5], allDiffuse[5], allSpecular[5];
 	Vec3 allPos[5];
 	int i = 0;
-	for (const auto& [name, light] : Resources) {
+	for (const auto& [name, light] : Lights) {
 		if (i >= 5) break;
 		// this math actually converts the light position from local to world space and then to view space so everything doesnt go dark.
 		Vec3 localPos = light->GetComponent<TransformComponent>()->GetPosition();
@@ -414,34 +452,30 @@ void Scene0g::Render() const {
 	glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Diffuse[0]"), 5, allDiffuse[0]);
 	glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Specular[0]"), 5, allSpecular[0]);
 	glUniform3fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("lightPos[0]"), 5, allPos[0]);
-	// this part is actually pretty cool. It renders everything in the ActorList
+	glBindTexture(GL_TEXTURE_2D, ActorList.at("GameBoard")->GetComponent<MaterialComponent>()->getTextureID());
+	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix")
+		,1, GL_FALSE, ActorList.at("GameBoard")->GetModelMatrix());
+	ActorList.at("GameBoard")->GetComponent<MeshComponent>()->Render();
+
 	for (auto const& [name, actor] : ActorList) {
-		// If your a parent piece I dont wanna see you so skip you.
-		if (name == "ParentPiece" || name == "ParentPieceRED") continue;
-		// If your the board then bind the actors texture.... but wait not the boards texture.
-		// The board is the first thing added to the list so this will never fail I put an if statement cuz it will die with literally everything else
-		if (name == "GameBoard") {
-			glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
+		// Hey your already rendered go away
+		if (name == "GameBoard") continue; 
+		glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
+			1, GL_FALSE, actor->GetModelMatrix());
+		// if your white become white if your black become black
+		if (name.find("W") != std::string::npos) {
+			glBindTexture(GL_TEXTURE_2D, Resources.at("ParentPiece")->GetComponent<MaterialComponent>()->getTextureID());
 		}
-		// Are you a black checker yes ok bind the original parent
-		else if (name.find("CheckerPieceB") != std::string::npos) {
-			glBindTexture(GL_TEXTURE_2D, ActorList.at("ParentPiece")->GetComponent<MaterialComponent>()->getTextureID());
-		}
-		// Are you a red checker yes ok bind the red parent
-		else if (name.find("CheckerPieceR") != std::string::npos) {
-			glBindTexture(GL_TEXTURE_2D, ActorList.at("ParentPieceRED")->GetComponent<MaterialComponent>()->getTextureID());
-		}
-		// everything has a model matrix right???? well I guess the lights dont buuutt they could imagine setting up directional lights now that could be funky
-		// maybe when time is free Ill right a shader for directional lights
-		glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"), 1, GL_FALSE, actor->GetModelMatrix());
-		// if you the GameBoard then render yourself. This will always be the first thing in the list so it cant fail
-		if (name == "GameBoard") {
-			actor->GetComponent<MeshComponent>()->Render();
-		}
-		// if you is not board you is checker piece so render checker piece
 		else {
-			ActorList.at("ParentPiece")->GetComponent<MeshComponent>()->Render();
+			glBindTexture(GL_TEXTURE_2D, Resources.at("BlackMaterial")->GetComponent<MaterialComponent>()->getTextureID());
 		}
+		// if you is rook render rook if you is knight render knight
+		if (name.find("Rook") != std::string::npos)        Resources.at("ParentPiece")->GetComponent<MeshComponent>()->Render();
+		else if (name.find("Knight") != std::string::npos)  Resources.at("KnightMesh")->GetComponent<MeshComponent>()->Render();
+		else if (name.find("Bishop") != std::string::npos)  Resources.at("BishopMesh")->GetComponent<MeshComponent>()->Render();
+		else if (name.find("Queen") != std::string::npos)   Resources.at("QueenMesh")->GetComponent<MeshComponent>()->Render();
+		else if (name.find("King") != std::string::npos)    Resources.at("KingMesh")->GetComponent<MeshComponent>()->Render();
+		else if (name.find("Pawn") != std::string::npos)    Resources.at("PawnMesh")->GetComponent<MeshComponent>()->Render();
 	}
 		glUseProgram(0);
 }

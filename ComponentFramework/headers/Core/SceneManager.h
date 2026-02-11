@@ -17,7 +17,7 @@ private:
 
 	enum class SCENE_NUMBER {
 		SCENE0g = 0,
-		SCENE0p,
+		ChessScene,
 		SCENE1,
 		SCENE2,
 		SCENE3,

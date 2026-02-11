@@ -144,6 +144,9 @@
     <ClCompile Include="src\Graphics\LightActor.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\Scenes\ChessScene.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\Core\Scene.h">
@@ -232,6 +235,9 @@
     </ClInclude>
     <ClInclude Include="headers\Graphics\LightActor.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Scenes\ChessScene.h">
+      <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -154,6 +154,7 @@
     <ClCompile Include="src\Graphics\ShaderComponent.cpp" />
     <ClCompile Include="src\Graphics\SkyBoxComponent.cpp" />
     <ClCompile Include="src\Physics\TransformComponent.cpp" />
+    <ClCompile Include="src\Scenes\ChessScene.cpp" />
     <ClCompile Include="src\Scenes\Scene0g.cpp" />
     <ClCompile Include="src\UI\Trackball.cpp" />
     <ClCompile Include="src\UI\UIManager.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="headers\Graphics\ShaderComponent.h" />
     <ClInclude Include="headers\Graphics\SkyBoxComponent.h" />
     <ClInclude Include="headers\Physics\TransformComponent.h" />
+    <ClInclude Include="headers\Scenes\ChessScene.h" />
     <ClInclude Include="headers\Scenes\Scene0g.h" />
     <ClInclude Include="headers\UI\Trackball.h" />
     <ClInclude Include="headers\UI\UIManager.h" />

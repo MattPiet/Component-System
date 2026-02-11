@@ -3,6 +3,7 @@
 #include <Core/Timer.h>
 #include <Core/Window.h>
 #include <Scenes/Scene0g.h>
+#include <Scenes/ChessScene.h>
 #include <Core/GuiWindow.h>
 #include <UI/UIManager.h>
 #include <Utils/MemoryMonitor.h>
@@ -66,7 +67,7 @@ bool SceneManager::Initialize(std::string name_, int width_, int height_) {
 	}
 
 	/********************************   Default first scene   ***********************/
-	BuildNewScene(SCENE_NUMBER::SCENE0g);
+	BuildNewScene(SCENE_NUMBER::ChessScene);
 	/********************************************************************************/
 	return true;
 }
@@ -154,17 +155,15 @@ void SceneManager::HandleEvents() {
 			case SDL_SCANCODE_Q:
 				isRunning = false;
 				return;
-
-
 			case SDL_SCANCODE_F1:
+				BuildNewScene(SCENE_NUMBER::SCENE0g);
+				break;
 			case SDL_SCANCODE_F2:
+				BuildNewScene(SCENE_NUMBER::ChessScene);
+				break;
 			case SDL_SCANCODE_F3:
 			case SDL_SCANCODE_F4:
 			case SDL_SCANCODE_F5:
-
-				BuildNewScene(SCENE_NUMBER::SCENE0g);
-				break;
-
 			default:
 				break;
 			}
@@ -194,10 +193,10 @@ bool SceneManager::BuildNewScene(SCENE_NUMBER scene) {
 		break;
 
 
-		/*case SCENE_NUMBER::SCENE1g:
-			currentScene = M_new Scene1g();
+		case SCENE_NUMBER::ChessScene:
+			currentScene = M_new ChessScene();
 			status = currentScene->OnCreate();
-			break;*/
+			break;
 
 	default:
 		Debug::Error("Incorrect scene number assigned in the manager", __FILE__, __LINE__);
