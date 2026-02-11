@@ -118,7 +118,7 @@ bool ChessScene::OnCreate() {
 		std::unique_ptr<Actor> actor = std::make_unique<Actor>(gameBoardParent);
 		// once we pass 16 the pieces are black
 		bool isBlack = (i >= 16);
-		std::string colour = isBlack ? "B" : "W";
+		std::string colour = isBlack ? "Black" : "White";
 		std::string pieceType;
 		// go throught the piecetypes index
 		int localIndex = i % 16;
@@ -129,7 +129,7 @@ bool ChessScene::OnCreate() {
 			pieceType = "Pawn";
 		}
 		std::string actorName = pieceType + colour + std::to_string(i);
-		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.5f, 0.5f, 0.5f));
+		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.75f, 0.75f, 0.75f));
 		actor->OnCreate();
 
 		ActorList.emplace(actorName, std::move(actor));
@@ -141,8 +141,8 @@ bool ChessScene::OnCreate() {
 		std::cout << "Actor Name: " << name << std::endl;
 	}
 	// turn the white knights cuz they face backwards
-	ActorList.at("KnightW1")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f,Vec3(0.0f,1.0f,0.0f)));
-	ActorList.at("KnightW6")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
+	ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f,Vec3(0.0f,1.0f,0.0f)));
+	ActorList.at("KnightWhite6")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
 	Vec3 startPos = Vec3(-22.25f, -22.25f, 0.0f);
 	float xStep = 6.35f;
 	float yStep = 6.35f;
@@ -151,7 +151,7 @@ bool ChessScene::OnCreate() {
 		// same as above just finding the name instead of setting it
 		bool isBlack = (i >= 16);
 		int localIdx = i % 16;
-		std::string colorSuffix = isBlack ? "B" : "W";
+		std::string colorSuffix = isBlack ? "Black" : "White";
 		std::string pieceType = (localIdx < 8) ? pieceTypes[localIdx] : "Pawn";
 		std::string name = pieceType + colorSuffix + std::to_string(i);
 
@@ -227,6 +227,7 @@ void ChessScene::OnDestroy() {
 	ActorList.clear(); 
 	camera.reset();
 	Lights.clear();
+	Resources.clear();
 	if (gamepad) {
 		SDL_CloseGamepad(gamepad); 
 		gamepad = nullptr;
@@ -474,7 +475,7 @@ void ChessScene::Render() const {
 		glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
 			1, GL_FALSE, actor->GetModelMatrix());
 		// if your white become white if your black become black
-		if (name.find("W") != std::string::npos) {
+		if (name.find("White") != std::string::npos) {
 			glBindTexture(GL_TEXTURE_2D, Resources.at("ParentPiece")->GetComponent<MaterialComponent>()->getTextureID());
 		}
 		else {
