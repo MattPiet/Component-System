@@ -26,9 +26,20 @@ ChessScene::~ChessScene() {
 	Debug::Info("Deleted Scene0: ", __FILE__, __LINE__);
 }
 /*
+	Hey Hey Hey read me 
+
+	Press F1 & F2 to Scene Switch
+	WASD to move camera
+	Shift to go down and space to go up
+	Left click and drag to look around
+		
 	Hey Scott this all runs on a different version of GameDev that has ImGui 
 	I have it built into the project file so it should just run without any issues at all 
 	let me know if something is bugged and Ill fix it instantly.
+
+	Side note lol this is the 2nd one I made sooo some comments are repeated 
+	And I kinda made some stuff more optimized and cleaner in certain places
+
 */
 bool ChessScene::OnCreate() {
 	// me make camera here I wanted to have a skybox so I just made it a material comp
