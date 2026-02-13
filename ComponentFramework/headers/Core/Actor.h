@@ -4,6 +4,7 @@
 #include <Matrix.h>
 #include <Core/Component.h>
 #include <Physics/TransformComponent.h>
+#include <memory>
 
 #include <Utils/MemoryMonitor.h>
 
@@ -14,6 +15,7 @@ class Actor : public Component {
 	Actor& operator=(Actor&&) = delete;
 protected:
 	std::vector<Component*> components;
+//	std::vector<std::shared_ptr<Component>> sharedComponents;
 
 public:
 	Actor(Component* parent_);
@@ -22,6 +24,11 @@ public:
 	virtual void OnDestroy() override;
 	virtual void Update(const float deltaTime) override;
 	virtual void Render() const override;
+
+	//template<typename ComponentTemplate>
+	//void AddComponent(std::shared_ptr<ComponentTemplate> componentObject) {
+	//	sharedComponents.push_back(componentObject);
+	//}
 
 	template<typename ComponentTemplate, typename ... Args>
 	void AddComponent(Args&& ... args_) {
@@ -39,6 +46,15 @@ public:
 		}
 		return nullptr;
 	}
+	//template<typename ComponentTemplate>
+	//std::shared_ptr<ComponentTemplate> GetSharedComponent() {
+	//	for (auto component : sharedComponents) {
+	//		if (dynamic_cast<std::shared_ptr<ComponentTemplate>>(component) != nullptr) {
+	//			return dynamic_cast<std::shared_ptr<ComponentTemplate>>(component);
+	//		}
+	//	}
+	//	return nullptr;
+	//}
 
 	template<typename ComponentTemplate> 
 	void RemoveComponent() {

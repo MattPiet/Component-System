@@ -20,7 +20,7 @@ public:
 	CameraActor(Actor* parent_, float fovy, float aspectRatio, float near, float far);
 	~CameraActor();
 	Matrix4 GetProjectionMatrix() const { return projectionMatrix; }
-	Matrix4 GetViewMatrix() const { return MMath::inverse(MMath::toMatrix4(orientation)) * MMath::inverse(MMath::translate(position));; }
+	Matrix4 GetViewMatrix() const { return MMath::inverse(MMath::toMatrix4(orientation)) * MMath::inverse(MMath::translate(position)); }
 	void UpdateViewMatrix(const SDL_Event& sdlEvent);
 	void setViewMatrix(const Matrix4& viewMatrix_) { viewMatrix = viewMatrix_; }
 

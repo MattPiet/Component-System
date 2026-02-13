@@ -64,22 +64,4 @@ void Trackball::onMouseMove(int x, int y) {
 	lastMouseX = x;
 	lastMouseY = y;
 }
-
-///https://www.khronos.org/opengl/wiki/Object_Mouse_Trackball
-const Vec3 Trackball::getMouseVector(int x, int y) {
-	Vec3 mousePosition(static_cast<float>(x), static_cast<float>(y), 0.0f);
-	Vec3 v = invNDC * mousePosition;
-	float xSquared = v.x * v.x;
-	float ySquared = v.y * v.y;
-	if (xSquared + ySquared <= 0.5f) { /// see reference (1.0f*1.0f / 2.0f) 1.0 is the radius of the sphere
-		/// if it's the sphere
-		v.z = sqrt(1.0f - (xSquared + ySquared));
-	}
-	else {
-		/// else it's the hyperbolic sheet
-		v.z = 0.5f / sqrt(xSquared + ySquared);
-		v = VMath::normalize(v);
-	}
-	return v;
-}
 #undef M_PI

@@ -58,6 +58,7 @@ bool ChessScene::OnCreate() {
 
 	// this is the foundation all living things come back to the game board. Literally everything except the camera is parented to it
 	std::unique_ptr<Actor> GameBoardActor = std::make_unique<Actor>(nullptr);
+	std::shared_ptr<ShaderComponent> shader =  std::make_shared<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
 	GameBoardActor->AddComponent<MaterialComponent>(nullptr, "textures/ChessBoard.png");
 	GameBoardActor->AddComponent<MeshComponent>(nullptr, "meshes/Plane.obj");
 	GameBoardActor->AddComponent<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
@@ -85,10 +86,10 @@ bool ChessScene::OnCreate() {
 	BlackMaterial->OnCreate();
 	Resources.emplace("BlackMaterial", std::move(BlackMaterial));
 
-	std::unique_ptr<Actor> Kight = std::make_unique<Actor>(gameBoardParent);
-	Kight->AddComponent<MeshComponent>(nullptr, "meshes/Knight.obj");
-	Kight->OnCreate();
-	Resources.emplace("KnightMesh", std::move(Kight));
+	std::unique_ptr<Actor> Knight = std::make_unique<Actor>(gameBoardParent);
+	Knight->AddComponent<MeshComponent>(nullptr, "meshes/Knight.obj");
+	Knight->OnCreate();
+	Resources.emplace("KnightMesh", std::move(Knight));
 
 	std::unique_ptr<Actor> Bishop = std::make_unique<Actor>(gameBoardParent);
 	Bishop->AddComponent<MeshComponent>(nullptr, "meshes/Bishop.obj");
@@ -129,6 +130,7 @@ bool ChessScene::OnCreate() {
 			pieceType = "Pawn";
 		}
 		std::string actorName = pieceType + colour + std::to_string(i);
+
 		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.75f, 0.75f, 0.75f));
 		actor->OnCreate();
 
@@ -441,19 +443,20 @@ void ChessScene::Render() const {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	// One shader for everything and it is attached to the board
+	//glUseProgram(ActorList.at("GameBoard")->GetSharedComponent<ShaderComponent>()->GetProgram());
 	glUseProgram(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetProgram());
 	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
 	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
 	// render all the lights in an array
 	Vec4 allAmbient[5], allDiffuse[5], allSpecular[5];
-	Vec3 allPos[5];
+	Vec3 allPosistions[5];
 	int i = 0;
 	for (const auto& [name, light] : Lights) {
 		if (i >= 5) break;
 		// this math actually converts the light position from local to world space and then to view space so everything doesnt go dark.
-		Vec3 localPos = light->GetComponent<TransformComponent>()->GetPosition();
-		Vec3 worldPos = ActorList.at("GameBoard")->GetModelMatrix() * localPos;
-		allPos[i] = camera->GetViewMatrix() * worldPos;
+		Vec3 localPosistion = light->GetComponent<TransformComponent>()->GetPosition();
+		Vec3 worldPosistion = ActorList.at("GameBoard")->GetModelMatrix() * localPosistion;
+		allPosistions[i] = camera->GetViewMatrix() * worldPosistion;
 		allAmbient[i] = light->GetAmbient();
 		allDiffuse[i] = light->GetDiffuse();
 		allSpecular[i] = light->GetSpecular();
@@ -463,7 +466,7 @@ void ChessScene::Render() const {
 	//glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Ambient[0]"), 5, allAmbient[0]); look its here will it be used ya probably not cuz it makes no sense
 	glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Diffuse[0]"), 5, allDiffuse[0]);
 	glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Specular[0]"), 5, allSpecular[0]);
-	glUniform3fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("lightPos[0]"), 5, allPos[0]);
+	glUniform3fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("lightPos[0]"), 5, allPosistions[0]);
 	glBindTexture(GL_TEXTURE_2D, ActorList.at("GameBoard")->GetComponent<MaterialComponent>()->getTextureID());
 	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix")
 		,1, GL_FALSE, ActorList.at("GameBoard")->GetModelMatrix());

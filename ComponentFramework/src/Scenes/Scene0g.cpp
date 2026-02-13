@@ -172,7 +172,6 @@ bool Scene0g::OnCreate() {
 	Vec3 cameraPos = Vec3(0.0f, 0.0f, 0.0f) + rotatedOffset;
 	camera->SetView(camera->GetOrientation(), cameraPos);
 	//camera->DontTrackXYRotations();
-
 	//ActorList.at("CheckerPieceR0")->GetComponent<TransformComponent>()->SetPosition(Vec3(0.0f, 0.0f, 5.0f));
 	return true;
 }
@@ -202,20 +201,20 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 				break;
 			case SDL_SCANCODE_LEFT:
 				// move board
-				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
-					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
+				ActorList["GameBoard"]->GetComponent<TransformComponent>()->SetPosition(
+					ActorList["GameBoard"]->GetComponent<TransformComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_RIGHT:
-				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
-					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(1.0f, 0.0f, 0.0f));
+				ActorList["GameBoard"]->GetComponent<TransformComponent>()->SetPosition(
+					ActorList["GameBoard"]->GetComponent<TransformComponent>()->GetPosition() + Vec3(1.0f, 0.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_UP:
-				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
-					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, 1.0f, 0.0f));
+				ActorList["GameBoard"]->GetComponent<TransformComponent>()->SetPosition(
+					ActorList["GameBoard"]->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, 1.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_DOWN:
-				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
-					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
+				ActorList["GameBoard"]->GetComponent<TransformComponent>()->SetPosition(
+					ActorList["GameBoard"]->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
 				break;
 		}
 		break;
