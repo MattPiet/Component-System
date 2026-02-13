@@ -13,8 +13,6 @@
 #include <random>
 #include <UI/UIManager.h>
 #include <Utils/MemoryMonitor.h>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 
 Scene0g::Scene0g() :
 drawInWireMode{false},
@@ -53,7 +51,7 @@ bool Scene0g::OnCreate() {
 		"textures/skybox/StarSkyboxPosz.png",
 		"textures/skybox/StarSkyboxnegz.png");
 	camera->OnCreate();
-
+	
 	// this is the foundation all living things come back to the game board. Literally everything except the camera is parented to it
 	std::unique_ptr<Actor> GameBoardActor = std::make_unique<Actor>(nullptr);
 	GameBoardActor->AddComponent<MaterialComponent>(nullptr, "textures/Red&Black_Board.png");

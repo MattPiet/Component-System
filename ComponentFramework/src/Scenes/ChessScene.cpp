@@ -14,16 +14,22 @@
 #include <UI/UIManager.h>
 #include <Utils/MemoryMonitor.h>
 
+
+//// Assimp includes
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+
+
 ChessScene::ChessScene() :
 drawInWireMode{false},
 window{ nullptr }, 
 context{ nullptr }
 {
-	Debug::Info("Created Scene0: ", __FILE__, __LINE__);
+	Debug::Info("Created ChessScene: ", __FILE__, __LINE__);
 }
 
 ChessScene::~ChessScene() {
-	Debug::Info("Deleted Scene0: ", __FILE__, __LINE__);
+	Debug::Info("Deleted ChessScene: ", __FILE__, __LINE__);
 }
 /*
 	Hey Hey Hey read me 
