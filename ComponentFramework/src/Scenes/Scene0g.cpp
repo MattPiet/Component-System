@@ -13,6 +13,8 @@
 #include <random>
 #include <UI/UIManager.h>
 #include <Utils/MemoryMonitor.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
 
 Scene0g::Scene0g() :
 drawInWireMode{false},

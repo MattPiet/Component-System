@@ -73,7 +73,7 @@
     <IncludePath>C:\GameDev\OpenGL\include;C:\GameDev\SDL2\include;C:\GameDev\MathLibrary\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)GameDev\imgui\include\GLFW;$(ProjectDir)GameDev\imgui\include;$(ProjectDir)GameDev\MathLibrary\include;$(ProjectDir)GameDev\OpenGL\include;$(ProjectDir)GameDev\SDL3\include;$(ProjectDir)GameDev\SDL3\include\SDL3_image;$(ProjectDir)GameDev\MathLibraryEx\include;$(ProjectDir)headers;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)GameDev\imgui\include\GLFW;$(ProjectDir)GameDev\imgui\include;$(ProjectDir)GameDev\MathLibrary\include;$(ProjectDir)GameDev\OpenGL\include;$(ProjectDir)GameDev\SDL3\include;$(ProjectDir)GameDev\SDL3\include\SDL3_image;$(ProjectDir)GameDev\MathLibraryEx\include;$(ProjectDir)headers;$(ProjectDir)GameDev\assimp\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,8 +99,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)GameDev\SDL3\lib\64;$(ProjectDir)GameDev\OpenGL\lib\64;$(ProjectDir)GameDev\imgui\lib\64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib;SDL3_image.lib;glew32.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)GameDev\SDL3\lib\64;$(ProjectDir)GameDev\OpenGL\lib\64;$(ProjectDir)GameDev\imgui\lib\64;$(ProjectDir)GameDev\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;SDL3_image.lib;glew32.lib;opengl32.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
