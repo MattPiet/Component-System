@@ -18,22 +18,22 @@ SceneManager::~SceneManager() {
 
 	if (currentScene) {
 		currentScene->OnDestroy();
-		delete currentScene;
+		M_delete(currentScene);
 		currentScene = nullptr;
 	}
 
 	if (timer) {
-		delete timer;
+		M_delete(timer);
 		timer = nullptr;
 	}
 
 	if (window) {
-		delete window;
+		M_delete(window);
 		window = nullptr;
 	}
 
 	if (imguiWin) {
-		delete imguiWin;
+		M_delete(imguiWin);
 		imguiWin = nullptr;
 	}
 }
@@ -182,7 +182,7 @@ bool SceneManager::BuildNewScene(SCENE_NUMBER scene) {
 
 	if (currentScene != nullptr) {
 		currentScene->OnDestroy();
-		delete currentScene;
+		M_delete(currentScene);
 		currentScene = nullptr;
 	}
 

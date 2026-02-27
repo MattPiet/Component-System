@@ -31,22 +31,7 @@ context{ nullptr }
 ChessScene::~ChessScene() {
 	Debug::Info("Deleted ChessScene: ", __FILE__, __LINE__);
 }
-/*
-	Hey Hey Hey read me 
 
-	Press F1 & F2 to Scene Switch
-	WASD to move camera
-	Shift to go down and space to go up
-	Left click and drag to look around
-		
-	Hey Scott this all runs on a different version of GameDev that has ImGui 
-	I have it built into the project file so it should just run without any issues at all 
-	let me know if something is bugged and Ill fix it instantly.
-
-	Side note lol this is the 2nd one I made sooo some comments are repeated 
-	And I kinda made some stuff more optimized and cleaner in certain places
-
-*/
 bool ChessScene::OnCreate() {
 	// me make camera here I wanted to have a skybox so I just made it a material comp
 	camera = std::make_unique<CameraActor>(nullptr, 45.0f, 16.0f / 9.0f, 0.5f, 100.0f);
@@ -63,8 +48,8 @@ bool ChessScene::OnCreate() {
 	camera->OnCreate();
 
 	// this is the foundation all living things come back to the game board. Literally everything except the camera is parented to it
-	std::unique_ptr<Actor> GameBoardActor = std::make_unique<Actor>(nullptr);
-	std::shared_ptr<ShaderComponent> shader =  std::make_shared<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
+	GameBoardActor = std::make_shared<Actor>(nullptr);
+	//std::shared_ptr<ShaderComponent> shader =  std::make_shared<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
 	GameBoardActor->AddComponent<MaterialComponent>(nullptr, "textures/ChessBoard.png");
 	GameBoardActor->AddComponent<MeshComponent>(nullptr, "meshes/Plane.obj");
 	GameBoardActor->AddComponent<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
@@ -74,45 +59,41 @@ bool ChessScene::OnCreate() {
 	GameBoardActor->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(-1.0f, 0.0f, 0.0f)));
 	GameBoardActor->GetComponent<TransformComponent>()->SetScale(Vec3(5.0f, 5.0f, 5.0f));
 	// this is me map I made one map that stores all physical actors. I did a map cuz its easier to track stuff
-	ActorList.emplace("GameBoard", std::move(GameBoardActor));
-	
-	// go get board and test id its actually valid
-	auto gameBoardIt = ActorList.find("GameBoard");
-	Actor* gameBoardParent = (gameBoardIt != ActorList.end()) ? gameBoardIt->second.get() : nullptr;
+
 
 	// Im not commenting alla this its setting up meshes and mats
-	std::unique_ptr<Actor> ParentActor = std::make_unique<Actor>(gameBoardParent);
+	std::unique_ptr<Actor> ParentActor = std::make_unique<Actor>(GameBoardActor.get());
 	ParentActor->AddComponent<MaterialComponent>(nullptr, "textures/White Chess Base Colour.png");
 	ParentActor->AddComponent<MeshComponent>(nullptr, "meshes/Rook.obj");
 	ParentActor->OnCreate();
 	Resources.emplace("ParentPiece", std::move(ParentActor));
 
-	std::unique_ptr<Actor> BlackMaterial = std::make_unique<Actor>(gameBoardParent);
+	std::unique_ptr<Actor> BlackMaterial = std::make_unique<Actor>(GameBoardActor.get());
 	BlackMaterial->AddComponent<MaterialComponent>(nullptr, "textures/Black Chess Base Colour.png");
 	BlackMaterial->OnCreate();
 	Resources.emplace("BlackMaterial", std::move(BlackMaterial));
 
-	std::unique_ptr<Actor> Knight = std::make_unique<Actor>(gameBoardParent);
+	std::unique_ptr<Actor> Knight = std::make_unique<Actor>(GameBoardActor.get());
 	Knight->AddComponent<MeshComponent>(nullptr, "meshes/Knight.obj");
 	Knight->OnCreate();
 	Resources.emplace("KnightMesh", std::move(Knight));
 
-	std::unique_ptr<Actor> Bishop = std::make_unique<Actor>(gameBoardParent);
+	std::unique_ptr<Actor> Bishop = std::make_unique<Actor>(GameBoardActor.get());
 	Bishop->AddComponent<MeshComponent>(nullptr, "meshes/Bishop.obj");
 	Bishop->OnCreate();
 	Resources.emplace("BishopMesh", std::move(Bishop));
 
-	std::unique_ptr<Actor> Queen = std::make_unique<Actor>(gameBoardParent);
+	std::unique_ptr<Actor> Queen = std::make_unique<Actor>(GameBoardActor.get());
 	Queen->AddComponent<MeshComponent>(nullptr, "meshes/Queen.obj");
 	Queen->OnCreate();
 	Resources.emplace("QueenMesh", std::move(Queen));
 
-	std::unique_ptr<Actor> King = std::make_unique<Actor>(gameBoardParent);
+	std::unique_ptr<Actor> King = std::make_unique<Actor>(GameBoardActor.get());
 	King->AddComponent<MeshComponent>(nullptr, "meshes/King.obj");
 	King->OnCreate();
 	Resources.emplace("KingMesh", std::move(King));
 
-	std::unique_ptr<Actor> Pawn = std::make_unique<Actor>(gameBoardParent);
+	std::unique_ptr<Actor> Pawn = std::make_unique<Actor>(GameBoardActor.get());
 	Pawn->AddComponent<MeshComponent>(nullptr, "meshes/Pawn.obj");
 	Pawn->OnCreate();
 	Resources.emplace("PawnMesh", std::move(Pawn));
@@ -122,7 +103,7 @@ bool ChessScene::OnCreate() {
 
 	for (int i = 0; i < 32; i++) {
 		// parent everything to the board
-		std::unique_ptr<Actor> actor = std::make_unique<Actor>(gameBoardParent);
+		std::unique_ptr<Actor> actor = std::make_unique<Actor>(GameBoardActor.get());
 		// once we pass 16 the pieces are black
 		bool isBlack = (i >= 16);
 		std::string colour = isBlack ? "Black" : "White";
@@ -202,7 +183,7 @@ bool ChessScene::OnCreate() {
 	// Create lights and set their properties
 	for (int i = 0; i < 5; i++) {
 		std::string lightName = "Light" + std::to_string(i);
-		std::unique_ptr<LightActor> Light = std::make_unique<LightActor>(gameBoardParent);
+		std::unique_ptr<LightActor> Light = std::make_unique<LightActor>(GameBoardActor.get());
 
 		Light->AddComponent<TransformComponent>(nullptr, positions[i], Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 		Light->OnCreate();
@@ -231,11 +212,15 @@ bool ChessScene::OnCreate() {
 }
 
 void ChessScene::OnDestroy() {
-	// begone memory leaks
-	ActorList.clear(); 
-	camera.reset();
+	//// begone memory leaks
+	for (auto const& [name, actor] : ActorList) {
+		if (actor) actor->SetParent(nullptr);
+	}
+
+	ActorList.clear();
 	Lights.clear();
 	Resources.clear();
+	camera.reset();
 	if (gamepad) {
 		SDL_CloseGamepad(gamepad); 
 		gamepad = nullptr;
@@ -254,20 +239,20 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 			case SDL_SCANCODE_LEFT:
 				// move board
 				// it dont work cuz it gets overriden in update but hey its here
-				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
-					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
+				GameBoardActor->GetComponent<TransformComponent>()->SetPosition(
+					GameBoardActor->GetComponent<TransformComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_RIGHT:
-				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
-					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(1.0f, 0.0f, 0.0f));
+				GameBoardActor->GetComponent<TransformComponent>()->SetPosition(
+					GameBoardActor->GetComponent<TransformComponent>()->GetPosition() + Vec3(1.0f, 0.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_UP:
-				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
-					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, 1.0f, 0.0f));
+				GameBoardActor->GetComponent<TransformComponent>()->SetPosition(
+					GameBoardActor->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, 1.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_DOWN:
-				ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->SetPosition(
-					ActorList["GameBoard"].get()->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
+				GameBoardActor->GetComponent<TransformComponent>()->SetPosition(
+					GameBoardActor->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
 				break;
 		}
 		break;
@@ -363,7 +348,7 @@ void ChessScene::Update(const float deltaTime) {
 	float speed = 1.0f;
 	float t = (sin(totalTime * speed) + 1.0f) / 2.0f;
 	Vec3 newPos = VMath::lerp(leftPos, rightPos, t);
-	ActorList.at("GameBoard")->GetComponent<TransformComponent>()->SetPosition(newPos);
+	GameBoardActor->GetComponent<TransformComponent>()->SetPosition(newPos);
 	// This is all the logic for the controller input moving the controller 
 	// I left it here for you to see Ill probably move it to somewhere else later
 	if (gamepad && SDL_GamepadConnected(gamepad)) {
@@ -450,9 +435,9 @@ void ChessScene::Render() const {
 	glCullFace(GL_BACK);
 	// One shader for everything and it is attached to the board
 	//glUseProgram(ActorList.at("GameBoard")->GetSharedComponent<ShaderComponent>()->GetProgram());
-	glUseProgram(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetProgram());
-	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
-	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
+	glUseProgram(GameBoardActor->GetComponent<ShaderComponent>()->GetProgram());
+	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
+	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
 	// render all the lights in an array
 	Vec4 allAmbient[5], allDiffuse[5], allSpecular[5];
 	Vec3 allPosistions[5];
@@ -461,7 +446,7 @@ void ChessScene::Render() const {
 		if (i >= 5) break;
 		// this math actually converts the light position from local to world space and then to view space so everything doesnt go dark.
 		Vec3 localPosistion = light->GetComponent<TransformComponent>()->GetPosition();
-		Vec3 worldPosistion = ActorList.at("GameBoard")->GetModelMatrix() * localPosistion;
+		Vec3 worldPosistion = GameBoardActor->GetModelMatrix() * localPosistion;
 		allPosistions[i] = camera->GetViewMatrix() * worldPosistion;
 		allAmbient[i] = light->GetAmbient();
 		allDiffuse[i] = light->GetDiffuse();
@@ -470,18 +455,18 @@ void ChessScene::Render() const {
 	}
 	// meh if I wanna do weird lighting effects then sure use the ambient but for now it just makes everything darker and I dont want that
 	//glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Ambient[0]"), 5, allAmbient[0]); look its here will it be used ya probably not cuz it makes no sense
-	glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Diffuse[0]"), 5, allDiffuse[0]);
-	glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Specular[0]"), 5, allSpecular[0]);
-	glUniform3fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("lightPos[0]"), 5, allPosistions[0]);
-	glBindTexture(GL_TEXTURE_2D, ActorList.at("GameBoard")->GetComponent<MaterialComponent>()->getTextureID());
-	glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix")
-		,1, GL_FALSE, ActorList.at("GameBoard")->GetModelMatrix());
-	ActorList.at("GameBoard")->GetComponent<MeshComponent>()->Render();
-
+	glUniform4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("Diffuse[0]"), 5, allDiffuse[0]);
+	glUniform4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("Specular[0]"), 5, allSpecular[0]);
+	glUniform3fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("lightPos[0]"), 5, allPosistions[0]);
+	glBindTexture(GL_TEXTURE_2D, GameBoardActor->GetComponent<MaterialComponent>()->getTextureID());
+	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix")
+		,1, GL_FALSE, GameBoardActor->GetModelMatrix());
+	GameBoardActor->GetComponent<MeshComponent>()->Render();
+	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
+		1, GL_FALSE, GameBoardActor->GetModelMatrix());
 	for (auto const& [name, actor] : ActorList) {
-		// Hey your already rendered go away
-		if (name == "GameBoard") continue; 
-		glUniformMatrix4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
+
+		glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
 			1, GL_FALSE, actor->GetModelMatrix());
 		// if your white become white if your black become black
 		if (name.find("White") != std::string::npos) {

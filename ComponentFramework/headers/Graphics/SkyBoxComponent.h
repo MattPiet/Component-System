@@ -7,7 +7,7 @@ class SkyBoxComponent : public Component {
 	GLuint ID;
 public:
 
-	SkyBoxComponent(Component* parent_, const char* posXFileName_, const char* negXFileName_,
+	SkyBoxComponent(Ref<Component> parent_, const char* posXFileName_, const char* negXFileName_,
 		const char* posYFileName_, const char* negYFileName_,
 		const char* posZFileName_, const char* negZFileName_);
 	~SkyBoxComponent();

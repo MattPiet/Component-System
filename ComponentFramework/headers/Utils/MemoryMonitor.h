@@ -19,8 +19,8 @@ struct MemoryTag {
 inline std::vector<std::pair<void*, MemoryTag>> memoryTracker;
 inline std::size_t currentUsage = 0;
 
-
-inline void PrintMemoryAction(void* ptr, std::size_t size, const MemoryTag& tag, const char* action) {
+template<typename T>
+inline void PrintMemoryAction(T ptr, std::size_t size, const MemoryTag& tag, const char* action) {
     std::cout << "========================================\n"
         << "[MEMORY " << action << "]\n"
         << "File: " << tag.file << " (Line: " << tag.line << ")\n"
@@ -59,29 +59,30 @@ inline void* operator new[](std::size_t size, const char* file, int line) {
     return ptr;
 }
 
-inline void operator delete(void* ptr, std::size_t size) noexcept {
-    if (!ptr) return;
-    auto it = std::find_if(memoryTracker.begin(), memoryTracker.end(),
-        [ptr](const auto& pair) { return pair.first == ptr; });
-
-    if (it != memoryTracker.end()) {
-        PrintMemoryAction(ptr, size, it->second, "DELETED");
-        memoryTracker.erase(it);
-    }
-    std::free(ptr);
-}
-
-inline void operator delete[](void* ptr) noexcept {
-    if (!ptr) return;
-    auto it = std::find_if(memoryTracker.begin(), memoryTracker.end(),
-        [ptr](const auto& pair) { return pair.first == ptr; });
-
-    if (it != memoryTracker.end()) {
-       PrintMemoryAction(ptr, it->second.size, it->second, "DELETED");
-        memoryTracker.erase(it);
-    }
-    std::free(ptr);
-}
+//inline void operator delete(void* ptr, std::size_t size) noexcept {
+//    if (!ptr) return;
+//
+//    auto it = std::find_if(memoryTracker.begin(), memoryTracker.end(),
+//        [ptr](const auto& pair) { return pair.first == ptr; });
+//
+//    if (it != memoryTracker.end()) {
+//        currentUsage -= it->second.size; // Update usage correctly
+//        memoryTracker.erase(it);
+//    }
+//    if(ptr) std::free(ptr); // Only one place for the actual free
+//}
+//
+//inline void operator delete[](void* ptr) noexcept {
+//    if (!ptr) return;
+//    auto it = std::find_if(memoryTracker.begin(), memoryTracker.end(),
+//        [ptr](const auto& pair) { return pair.first == ptr; });
+//
+//    if (it != memoryTracker.end()) {
+//       PrintMemoryAction(ptr, it->second.size, it->second, "DELETED");
+//        memoryTracker.erase(it);
+//    }
+//    std::free(ptr);
+//}
 
 inline static void ReportLeaks() {
     std::cout << "\n--- FINAL MEMORY LEAK REPORT ---\n";
@@ -101,9 +102,40 @@ inline static void ReportLeaks() {
 
 inline void ShutdownMemoryMonitor() {
     memoryTracker.clear();
-    memoryTracker.shrink_to_fit(); // This is the magic line that actually frees the 2520 bytes
+    memoryTracker.shrink_to_fit(); 
+}
+
+template<typename T>
+void MemoryDelete(T* ptr, const char* file, int line)
+{
+    if (!ptr) return;
+    
+        auto it = std::find_if(memoryTracker.begin(), memoryTracker.end(),
+            [ptr](const auto& pair) { return pair.first == ptr; });
+    
+        if (it != memoryTracker.end()) {
+            currentUsage -= it->second.size; // Update usage correctly
+            memoryTracker.erase(it);
+        }
+    delete ptr; // real delete
+}
+
+template<typename T>
+void MemoryDeleteArray(T* ptr, const char*, int)
+{
+    if (!ptr) return;
+        auto it = std::find_if(memoryTracker.begin(), memoryTracker.end(),
+            [ptr](const auto& pair) { return pair.first == ptr; });
+    
+        if (it != memoryTracker.end()) {
+           PrintMemoryAction(ptr, it->second.size, it->second, "DELETED");
+            memoryTracker.erase(it);
+        }
+    delete[] ptr;
 }
 
 #define M_new new(__FILE__, __LINE__)
+#define M_delete(ptr) MemoryDelete(ptr, __FILE__, __LINE__)
+#define M_delete_array(ptr) MemoryDeleteArray(ptr, __FILE__, __LINE__)
 
 #endif

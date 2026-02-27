@@ -34,7 +34,7 @@ class ShaderComponent : public Component
 
 public:
 
-	ShaderComponent(Component* parent_, const char* vertFilename_, const char* fragFilename_,
+	ShaderComponent(Ref<Component> parent_, const char* vertFilename_, const char* fragFilename_,
 		const char* tessCtrlFilename_ = nullptr, const char* tessEvalFilename = nullptr,
 		const char* geomFilename_ = nullptr);
 	virtual ~ShaderComponent();

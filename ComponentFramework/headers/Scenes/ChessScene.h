@@ -17,6 +17,7 @@ union SDL_Event;
 class ChessScene : public Scene {
 private:
 	std::unique_ptr<CameraActor> camera;
+	std::shared_ptr<Actor> GameBoardActor;
 	bool drawInWireMode;
 	bool showImGuiDemoWindow = true; // optional for testing
 	char textBuffer[256] = "";       // input text buffer

@@ -36,49 +36,41 @@ void Actor::Update(const float deltaTime) {
 
 void Actor::Render()const {}
 
+
 void Actor::RemoveAllComponents() {
-	for (auto component : components) {
-		if (component != nullptr) {
-			component->OnDestroy(); // Ensure the component cleans up its own GL/SDL resources
-			delete component;       // This actually calls the destructor and frees the heap memory
-		}
-	}
-	components.clear(); // Now it's safe to empty the vector
+	components.clear();
 }
 
 void Actor::ListComponents() const {
 	std::cout << typeid(*this).name() << " contains the following components:\n";
-	for (Component* component : components) {
+	for (const auto& component : components) {
 		std::cout << typeid(*component).name() << std::endl;
 	}
 	std::cout << '\n';
 }
-//
-//MATH::Matrix4 Actor::GetModelMatrix() {
-//	
-//	Ref<TransformComponent> transform = GetComponent<TransformComponent>();
-//	if (transform.get()) {
-//		modelMatrix = transform->GetTransformMatrix();
-//	} else {
-//		modelMatrix.loadIdentity();
-//	}
-//	if (parent) {
-//		modelMatrix = dynamic_cast<Actor*>(parent)->GetModelMatrix() * modelMatrix;
-//	}
-//	return modelMatrix;
-//}
-//
+
+
 MATH::Matrix4 Actor::GetModelMatrix() {
 
 	MATH::Matrix4 modelMatrix;
-	TransformComponent* transform = GetComponent<TransformComponent>();
-	if (transform != nullptr) {
+	Ref<TransformComponent> transform = GetComponent<TransformComponent>();
+
+	if (transform) {
 		modelMatrix = transform->GetTransformMatrix();
-	} else {
+	}
+	else {
 		modelMatrix.loadIdentity();
 	}
+
 	if (parent) {
-		modelMatrix = dynamic_cast<Actor*>(parent)->GetComponent<TransformComponent>()->GetTranslate_Rotate_Matrix() * modelMatrix;
+		// Use regular dynamic_cast for raw pointers, not shared_ptr casts
+		Actor* parentActor = dynamic_cast<Actor*>(parent);
+		if (parentActor) {
+			auto parentTransform = parentActor->GetComponent<TransformComponent>();
+			if (parentTransform) {
+				modelMatrix = parentTransform->GetTranslate_Rotate_Matrix() * modelMatrix;
+			}
+		}
 	}
 	return modelMatrix;
 }

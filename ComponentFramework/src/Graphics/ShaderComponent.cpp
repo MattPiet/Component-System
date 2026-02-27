@@ -4,9 +4,9 @@
 #include <string.h>
 
 #include <Utils/MemoryMonitor.h>
-ShaderComponent::ShaderComponent(Component* parent_, const char* vertFilename_, const char* fragFilename_,
+ShaderComponent::ShaderComponent(Ref<Component> parent_, const char* vertFilename_, const char* fragFilename_,
 	const char* tessCtrlFilename_, const char* tessEvalFilename_,
-	const char* geomFilename_) : Component(parent_),
+	const char* geomFilename_) : Component(parent_.get()),
 
 	shaderID(0), vertShaderID(0), fragShaderID(0), tessCtrlShaderID(0),
 	tessEvalShaderID(0), geomShaderID(0),
@@ -209,11 +209,11 @@ bool ShaderComponent::CompileAttach() {
 		if (tessEvalShaderID) glAttachShader(shaderID, tessEvalShaderID);
 		if (geomShaderID) glAttachShader(shaderID, geomShaderID);
 
-		if (vertText) delete[] vertText;
-		if (fragText) delete[] fragText;
-		if (tessCtrlText) delete[] tessCtrlText;
-		if (tessEvalText) delete[] tessEvalText;
-		if (geomText) delete[] geomText;
+		if (vertText) M_delete_array(vertText);
+		if (fragText) M_delete_array(fragText);
+		if (tessCtrlText) M_delete_array(tessCtrlText);
+		if (tessEvalText) M_delete_array(tessEvalText);
+		if (geomText) M_delete_array(geomText);
 
 	}
 	catch (std::string error) {
