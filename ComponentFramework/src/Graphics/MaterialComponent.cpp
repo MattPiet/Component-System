@@ -4,7 +4,7 @@
 #include <Utils/MemoryMonitor.h>
 
 MaterialComponent::MaterialComponent(Ref<Component> parent_,const char* filename_):
-	Component(parent_.get()), textureID(0), filename(filename_) {}
+	Component(parent_), textureID(0), filename(filename_) {}
 
 MaterialComponent::~MaterialComponent() {
 	glDeleteTextures(1, &textureID);

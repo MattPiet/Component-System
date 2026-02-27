@@ -62,38 +62,38 @@ bool ChessScene::OnCreate() {
 
 
 	// Im not commenting alla this its setting up meshes and mats
-	std::unique_ptr<Actor> ParentActor = std::make_unique<Actor>(GameBoardActor.get());
+	std::shared_ptr<Actor> ParentActor = std::make_shared<Actor>(nullptr);
 	ParentActor->AddComponent<MaterialComponent>(nullptr, "textures/White Chess Base Colour.png");
 	ParentActor->AddComponent<MeshComponent>(nullptr, "meshes/Rook.obj");
 	ParentActor->OnCreate();
 	Resources.emplace("ParentPiece", std::move(ParentActor));
 
-	std::unique_ptr<Actor> BlackMaterial = std::make_unique<Actor>(GameBoardActor.get());
+	std::shared_ptr<Actor> BlackMaterial = std::make_shared<Actor>(nullptr);
 	BlackMaterial->AddComponent<MaterialComponent>(nullptr, "textures/Black Chess Base Colour.png");
 	BlackMaterial->OnCreate();
 	Resources.emplace("BlackMaterial", std::move(BlackMaterial));
 
-	std::unique_ptr<Actor> Knight = std::make_unique<Actor>(GameBoardActor.get());
+	std::shared_ptr<Actor> Knight = std::make_shared<Actor>(nullptr);
 	Knight->AddComponent<MeshComponent>(nullptr, "meshes/Knight.obj");
 	Knight->OnCreate();
 	Resources.emplace("KnightMesh", std::move(Knight));
 
-	std::unique_ptr<Actor> Bishop = std::make_unique<Actor>(GameBoardActor.get());
+	std::shared_ptr<Actor> Bishop = std::make_shared<Actor>(nullptr);
 	Bishop->AddComponent<MeshComponent>(nullptr, "meshes/Bishop.obj");
 	Bishop->OnCreate();
 	Resources.emplace("BishopMesh", std::move(Bishop));
 
-	std::unique_ptr<Actor> Queen = std::make_unique<Actor>(GameBoardActor.get());
+	std::shared_ptr<Actor> Queen = std::make_shared<Actor>(nullptr);
 	Queen->AddComponent<MeshComponent>(nullptr, "meshes/Queen.obj");
 	Queen->OnCreate();
 	Resources.emplace("QueenMesh", std::move(Queen));
 
-	std::unique_ptr<Actor> King = std::make_unique<Actor>(GameBoardActor.get());
+	std::shared_ptr<Actor> King = std::make_shared<Actor>(nullptr);
 	King->AddComponent<MeshComponent>(nullptr, "meshes/King.obj");
 	King->OnCreate();
 	Resources.emplace("KingMesh", std::move(King));
 
-	std::unique_ptr<Actor> Pawn = std::make_unique<Actor>(GameBoardActor.get());
+	std::shared_ptr<Actor> Pawn = std::make_shared<Actor>(nullptr);
 	Pawn->AddComponent<MeshComponent>(nullptr, "meshes/Pawn.obj");
 	Pawn->OnCreate();
 	Resources.emplace("PawnMesh", std::move(Pawn));
@@ -103,7 +103,7 @@ bool ChessScene::OnCreate() {
 
 	for (int i = 0; i < 32; i++) {
 		// parent everything to the board
-		std::unique_ptr<Actor> actor = std::make_unique<Actor>(GameBoardActor.get());
+		std::unique_ptr<Actor> actor = std::make_unique<Actor>(GameBoardActor);
 		// once we pass 16 the pieces are black
 		bool isBlack = (i >= 16);
 		std::string colour = isBlack ? "Black" : "White";
@@ -119,16 +119,27 @@ bool ChessScene::OnCreate() {
 		std::string actorName = pieceType + colour + std::to_string(i);
 
 		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.75f, 0.75f, 0.75f));
+		if (actorName.find("Rook") != std::string::npos)		  actor->AddComponent<MeshComponent>(Resources.at("ParentPiece")->GetComponent<MeshComponent>());
+		else if (actorName.find("Knight") != std::string::npos)   actor->AddComponent<MeshComponent>(Resources.at("KnightMesh")->GetComponent<MeshComponent>());
+		else if (actorName.find("Bishop") != std::string::npos)   actor->AddComponent<MeshComponent>(Resources.at("BishopMesh")->GetComponent<MeshComponent>());
+		else if (actorName.find("Queen") != std::string::npos)    actor->AddComponent<MeshComponent>(Resources.at("QueenMesh")->GetComponent<MeshComponent>());
+		else if (actorName.find("King") != std::string::npos)     actor->AddComponent<MeshComponent>(Resources.at("KingMesh")->GetComponent<MeshComponent>());
+		else if (actorName.find("Pawn") != std::string::npos)     actor->AddComponent<MeshComponent>(Resources.at("PawnMesh")->GetComponent<MeshComponent>());
+
+		if (actorName.find("White") != std::string::npos)
+		actor->AddComponent<MaterialComponent>(Resources.at("ParentPiece")->GetComponent<MaterialComponent>());
+		else
+			actor->AddComponent<MaterialComponent>(Resources.at("BlackMaterial")->GetComponent<MaterialComponent>());
 		actor->OnCreate();
 
 		ActorList.emplace(actorName, std::move(actor));
 	}
-	// print the names cuz why not
+	/*// print the names cuz why not
 	for (const auto& pair : ActorList) {
 		const std::string& name = pair.first;
 		Actor* actor = pair.second.get();
-		std::cout << "Actor Name: " << name << std::endl;
-	}
+	//	std::cout << "Actor Name: " << name << std::endl;
+	}*/
 	// turn the white knights cuz they face backwards
 	ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f,Vec3(0.0f,1.0f,0.0f)));
 	ActorList.at("KnightWhite6")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
@@ -183,7 +194,7 @@ bool ChessScene::OnCreate() {
 	// Create lights and set their properties
 	for (int i = 0; i < 5; i++) {
 		std::string lightName = "Light" + std::to_string(i);
-		std::unique_ptr<LightActor> Light = std::make_unique<LightActor>(GameBoardActor.get());
+		std::unique_ptr<LightActor> Light = std::make_unique<LightActor>(GameBoardActor);
 
 		Light->AddComponent<TransformComponent>(nullptr, positions[i], Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 		Light->OnCreate();
@@ -213,10 +224,6 @@ bool ChessScene::OnCreate() {
 
 void ChessScene::OnDestroy() {
 	//// begone memory leaks
-	for (auto const& [name, actor] : ActorList) {
-		if (actor) actor->SetParent(nullptr);
-	}
-
 	ActorList.clear();
 	Lights.clear();
 	Resources.clear();
@@ -465,28 +472,16 @@ void ChessScene::Render() const {
 	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
 		1, GL_FALSE, GameBoardActor->GetModelMatrix());
 	for (auto const& [name, actor] : ActorList) {
-
 		glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
 			1, GL_FALSE, actor->GetModelMatrix());
 		// if your white become white if your black become black
-		if (name.find("White") != std::string::npos) {
-			glBindTexture(GL_TEXTURE_2D, Resources.at("ParentPiece")->GetComponent<MaterialComponent>()->getTextureID());
-		}
-		else {
-			glBindTexture(GL_TEXTURE_2D, Resources.at("BlackMaterial")->GetComponent<MaterialComponent>()->getTextureID());
-		}
-		// if you is rook render rook if you is knight render knight
-		if (name.find("Rook") != std::string::npos)        Resources.at("ParentPiece")->GetComponent<MeshComponent>()->Render();
-		else if (name.find("Knight") != std::string::npos)  Resources.at("KnightMesh")->GetComponent<MeshComponent>()->Render();
-		else if (name.find("Bishop") != std::string::npos)  Resources.at("BishopMesh")->GetComponent<MeshComponent>()->Render();
-		else if (name.find("Queen") != std::string::npos)   Resources.at("QueenMesh")->GetComponent<MeshComponent>()->Render();
-		else if (name.find("King") != std::string::npos)    Resources.at("KingMesh")->GetComponent<MeshComponent>()->Render();
-		else if (name.find("Pawn") != std::string::npos)    Resources.at("PawnMesh")->GetComponent<MeshComponent>()->Render();
+		glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
+		actor->GetComponent<MeshComponent>()->Render();
 	}
 		glUseProgram(0);
 }
 
-// Well thats all of my terrible code honestly Id fail me
+// Well that's all of my terrible code honestly I'd fail me
 
 
 

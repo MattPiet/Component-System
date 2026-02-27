@@ -128,7 +128,7 @@ void MemoryDeleteArray(T* ptr, const char*, int)
             [ptr](const auto& pair) { return pair.first == ptr; });
     
         if (it != memoryTracker.end()) {
-           PrintMemoryAction(ptr, it->second.size, it->second, "DELETED");
+        //   PrintMemoryAction(ptr, it->second.size, it->second, "DELETED");
             memoryTracker.erase(it);
         }
     delete[] ptr;

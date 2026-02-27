@@ -32,7 +32,7 @@ private:
 
 	std::unordered_map<std::string, std::unique_ptr<Actor>> ActorList;
 	std::unordered_map<std::string, std::unique_ptr<LightActor>> Lights;
-	std::unordered_map<std::string, std::unique_ptr<Actor>> Resources;
+	std::unordered_map<std::string, std::shared_ptr<Actor>> Resources;
 	
 
 	// 1. Update your stored angles (Add these floats to your class)

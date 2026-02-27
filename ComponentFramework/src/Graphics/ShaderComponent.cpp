@@ -6,7 +6,7 @@
 #include <Utils/MemoryMonitor.h>
 ShaderComponent::ShaderComponent(Ref<Component> parent_, const char* vertFilename_, const char* fragFilename_,
 	const char* tessCtrlFilename_, const char* tessEvalFilename_,
-	const char* geomFilename_) : Component(parent_.get()),
+	const char* geomFilename_) : Component(parent_),
 
 	shaderID(0), vertShaderID(0), fragShaderID(0), tessCtrlShaderID(0),
 	tessEvalShaderID(0), geomShaderID(0),
@@ -22,6 +22,8 @@ ShaderComponent::~ShaderComponent() {}
 
 
 bool ShaderComponent::OnCreate() {
+	if (isCreated) return true;
+	isCreated = true;
 	bool status;
 	status = CompileAttach();
 	if (status == false) return false;

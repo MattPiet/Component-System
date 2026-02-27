@@ -38,7 +38,7 @@ Scene0g::~Scene0g() {
 	let me know if something is bugged and Ill fix it instantly.
 */
 bool Scene0g::OnCreate() {
-	// me make camera here I wanted to have a skybox so I just made it a material comp
+	/*// me make camera here I wanted to have a skybox so I just made it a material comp
 	camera = std::make_unique<CameraActor>(nullptr, 45.0f, 16.0f / 9.0f, 0.5f, 100.0f);
 	camera->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, -5.0f), Quaternion());
 	camera->AddComponent<ShaderComponent>(nullptr, "shaders/skyBoxVert.glsl", "shaders/skyBoxFrag.glsl");
@@ -173,11 +173,12 @@ bool Scene0g::OnCreate() {
 	camera->SetView(camera->GetOrientation(), cameraPos);
 	//camera->DontTrackXYRotations();
 	//ActorList.at("CheckerPieceR0")->GetComponent<TransformComponent>()->SetPosition(Vec3(0.0f, 0.0f, 5.0f));
+	return true;*/
 	return true;
 }
 
 void Scene0g::OnDestroy() {
-	// begone memory leaks
+	/*// begone memory leaks
 	ActorList.clear(); 
 	camera.reset();
 	Resources.clear();
@@ -186,11 +187,12 @@ void Scene0g::OnDestroy() {
 		gamepad = nullptr;
 	}
 	SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
+	*/
 
 }
 
 void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
-	//make camera respond to input
+	/*//make camera respond to input
 		camera->UpdateViewMatrix(sdlEvent);
 	
 	switch( sdlEvent.type ) {
@@ -277,12 +279,12 @@ void Scene0g::HandleEvents(const SDL_Event &sdlEvent) {
 	break;
 	default:
 		break;
-    }
+    }*/
 }
 
 void Scene0g::RenderGUI()
 {
-	//im gui stuff. I havent really done anything with it 
+	/*//im gui stuff. I havent really done anything with it 
 	// but I wanna put the output of the memory monitor in it whenever I get around to it
 	ImVec4 r = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 	ImVec4 g = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
@@ -299,11 +301,11 @@ void Scene0g::RenderGUI()
 		r = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 	UIManager::PopButtonStyle();
-	UIManager::EndWindow();
+	UIManager::EndWindow();*/
 }
 
 void Scene0g::Update(const float deltaTime) {
-	static float totalTime = 0.0f;
+	/*static float totalTime = 0.0f;
 	totalTime += deltaTime;
 	Vec3 leftPos = Vec3(-5.0f, -1.5f, -5.0f);
 	Vec3 rightPos = Vec3(5.0f, -1.5f, -5.0f);
@@ -365,12 +367,12 @@ void Scene0g::Update(const float deltaTime) {
 		velocity = VMath::normalize(velocity);
 		Vec3 displacement = velocity * CameraSpeed * deltaTime;
 		camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(displacement));
-	}
+	}*/
 }
 
 void Scene0g::Render() const {
 	/// Set the background color then clear the screen
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	/*glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// render skybox first
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -449,7 +451,7 @@ void Scene0g::Render() const {
 			ActorList.at("ParentPiece")->GetComponent<MeshComponent>()->Render();
 		}
 	}
-		glUseProgram(0);
+		glUseProgram(0);*/
 }
 
 // Well thats all of my terrible code honestly Id fail me

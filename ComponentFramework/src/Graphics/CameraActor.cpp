@@ -2,7 +2,7 @@
 #include <Physics/TransformComponent.h>
 #include <Core/Debug.h>
 #include <SDL3/SDL.h>
-CameraActor::CameraActor(Actor* parent_, float fovy, float aspectRatio, float near, float far) : Actor(parent_), 
+CameraActor::CameraActor(Ref<Actor> parent_, float fovy, float aspectRatio, float near, float far) : Actor(parent_), 
 orientation(), projectionMatrix(), viewMatrix(), position(), trackball(), textureID(0)
 {
 	projectionMatrix = MMath::perspective(fovy, aspectRatio, near, far);

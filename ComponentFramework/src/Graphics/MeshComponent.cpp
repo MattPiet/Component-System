@@ -6,7 +6,7 @@
 
 
 #include <Utils/MemoryMonitor.h>
-MeshComponent::MeshComponent(Ref<Component> parent_, const char* filename_) : Component(parent_.get()),
+MeshComponent::MeshComponent(Ref<Component> parent_, const char* filename_) : Component(parent_),
 dateLength(0),
 filename(filename_)
 , drawmode(0)

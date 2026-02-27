@@ -4,7 +4,7 @@
 
 SkyBoxComponent::SkyBoxComponent(Ref<Component> parent_,const char* posXFileName_, const char* negXFileName_,
 	const char* posYFileName_, const char* negYFileName_,
-	const char* posZFileName_, const char* negZFileName_) : Component(parent_.get()), posXFileName(posXFileName_),
+	const char* posZFileName_, const char* negZFileName_) : Component(parent_), posXFileName(posXFileName_),
 negXFileName(negXFileName_),
 posYFileName(posYFileName_),
 negYFileName(negYFileName_),

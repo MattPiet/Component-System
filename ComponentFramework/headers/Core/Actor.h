@@ -16,7 +16,7 @@ class Actor : public Component {
 protected:
 	std::vector<std::shared_ptr<Component>> components;
 public:
-	Actor(Component* parent_);
+	Actor(Ref<Component> parent_);
 	virtual ~Actor();
 	virtual bool OnCreate() override;
 	virtual void OnDestroy() override;
@@ -73,6 +73,6 @@ public:
 	void RemoveAllComponents();
 
 	MATH::Matrix4 GetModelMatrix();
-	void SetParent(Component* parent_) { parent = parent_; }
+	//void SetParent(Component* parent_) { parent = parent_; }
 };
 

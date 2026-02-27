@@ -2,7 +2,7 @@
 #include <Core/Debug.h>
 #include <Utils/MemoryMonitor.h>
 
-Actor::Actor(Component* parent_):Component(parent_) {}
+Actor::Actor(Ref<Component> parent_):Component(parent_) {}
 
 bool Actor::OnCreate() {
 	if (isCreated) return true;
@@ -62,9 +62,9 @@ MATH::Matrix4 Actor::GetModelMatrix() {
 		modelMatrix.loadIdentity();
 	}
 
-	if (parent) {
+	if (parent.lock()) {
 		// Use regular dynamic_cast for raw pointers, not shared_ptr casts
-		Actor* parentActor = dynamic_cast<Actor*>(parent);
+		Actor* parentActor = dynamic_cast<Actor*>(parent.lock().get());
 		if (parentActor) {
 			auto parentTransform = parentActor->GetComponent<TransformComponent>();
 			if (parentTransform) {
