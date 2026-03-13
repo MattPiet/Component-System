@@ -24,44 +24,48 @@ void Trackball::setWindowDimensions() {
 
 void Trackball::HandleEvents(const SDL_Event& sdlEvent) {
 	if (sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-		onLeftMouseDown(static_cast<int>(sdlEvent.button.x), static_cast<int>(sdlEvent.button.y));
+		if (sdlEvent.button.button == SDL_BUTTON_RIGHT) {
+			SDL_SetWindowRelativeMouseMode(SDL_GetWindowFromID(sdlEvent.button.windowID), true);
+			onRightMouseDown(static_cast<int>(sdlEvent.button.x), static_cast<int>(sdlEvent.button.y));
+		}
 	}
 	else if (sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-		onLeftMouseUp(static_cast<int>(sdlEvent.button.x), static_cast<int>(sdlEvent.button.y));
+		if (sdlEvent.button.button == SDL_BUTTON_RIGHT) {
+			SDL_SetWindowRelativeMouseMode(SDL_GetWindowFromID(sdlEvent.button.windowID), false);
+			onRightMouseUp(static_cast<int>(sdlEvent.button.x), static_cast<int>(sdlEvent.button.y));
+		}
 	}
-	else if (sdlEvent.type == SDL_EVENT_MOUSE_MOTION &&
-		(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_LMASK)) {
-		onMouseMove(static_cast<int>(sdlEvent.button.x), static_cast<int>(sdlEvent.button.y));
-	}
-	else if (sdlEvent.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
-		setWindowDimensions();
+	else if (sdlEvent.type == SDL_EVENT_MOUSE_MOTION) {
+		if (SDL_GetWindowRelativeMouseMode(SDL_GetWindowFromID(sdlEvent.button.windowID))) {
+			onMouseMove(static_cast<int>(sdlEvent.motion.xrel), static_cast<int>(sdlEvent.motion.yrel));
+		}
 	}
 }
 
-void Trackball::onLeftMouseDown(int x, int y) {
+void Trackball::onRightMouseDown(int x, int y) {
 	mouseDown = true;
 	lastMouseX = x;
 	lastMouseY = y;
 
 }
 
-void Trackball::onLeftMouseUp(int x, int y) {
+void Trackball::onRightMouseUp(int x, int y) {
 	mouseDown = false;
 }
 
 void Trackball::onMouseMove(int x, int y) {
 	if (!mouseDown) return;
-	float deltaX = static_cast<float>(x - lastMouseX);
-	float deltaY = static_cast<float>(y - lastMouseY);
-	m_Yaw += -deltaX * m_Sensitivity;
-	m_Pitch += -deltaY * m_Sensitivity;
+
+	// Use the parameters directly as deltas
+	m_Yaw += -static_cast<float>(x) * m_Sensitivity;
+	m_Pitch += -static_cast<float>(y) * m_Sensitivity;
+
+	// Clamp Pitch to prevent flipping
 	if (m_Pitch > 89.0f)  m_Pitch = 89.0f;
 	if (m_Pitch < -89.0f) m_Pitch = -89.0f;
 
 	Quaternion qYaw = QMath::angleAxisRotation(m_Yaw, Vec3(0.0f, 1.0f, 0.0f));
 	Quaternion qPitch = QMath::angleAxisRotation(m_Pitch, Vec3(1.0f, 0.0f, 0.0f));
 	mouseRotationQuat = qYaw * qPitch;
-	lastMouseX = x;
-	lastMouseY = y;
 }
 #undef M_PI

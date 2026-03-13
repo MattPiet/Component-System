@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include <Utils/MemoryMonitor.h>
-ShaderComponent::ShaderComponent(Ref<Component> parent_, const char* vertFilename_, const char* fragFilename_,
+ShaderComponent::ShaderComponent(std::weak_ptr<Component> parent_, const char* vertFilename_, const char* fragFilename_,
 	const char* tessCtrlFilename_, const char* tessEvalFilename_,
 	const char* geomFilename_) : Component(parent_),
 

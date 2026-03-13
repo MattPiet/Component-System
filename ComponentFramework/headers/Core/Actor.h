@@ -16,7 +16,7 @@ class Actor : public Component {
 protected:
 	std::vector<std::shared_ptr<Component>> components;
 public:
-	Actor(Ref<Component> parent_);
+	Actor(std::weak_ptr<Component> parent_);
 	virtual ~Actor();
 	virtual bool OnCreate() override;
 	virtual void OnDestroy() override;

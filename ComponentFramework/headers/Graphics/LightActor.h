@@ -13,7 +13,7 @@ class LightActor : public Actor
 	Vec4 Diffuse = Vec4(0.0, 0.6, 0.0, 0.0);
 	Vec4 Ambient = Vec4(0.0, 0.6, 0.0, 0.0);
 public:
-	LightActor(Ref<Actor> parent_, Vec4 Specular_ = Vec4(0.0, 0.0, 0.0, 0.0), Vec4 Diffuse_ = Vec4(0.0, 0.0, 0.0, 0.0), Vec4 Ambient = Vec4(0.0, 0.0, 0.0, 0.0));
+	LightActor(std::weak_ptr<Actor> parent_, Vec4 Specular_ = Vec4(0.0, 0.0, 0.0, 0.0), Vec4 Diffuse_ = Vec4(0.0, 0.0, 0.0, 0.0), Vec4 Ambient = Vec4(0.0, 0.0, 0.0, 0.0));
 	~LightActor();
 
 	void OnDestroy() override;

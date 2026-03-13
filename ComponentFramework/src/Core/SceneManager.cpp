@@ -111,7 +111,7 @@ void SceneManager::Run() {
 			ImGui::Text("FPS: %1.f", io.Framerate);
 			if (ImGui::Button("Refresh"))
 			{
-				BuildNewScene(SCENE_NUMBER::SCENE0g);
+				BuildNewScene(SCENE_NUMBER::ChessScene);
 			}
 
 			UIManager::PopButtonStyle(); // popping button style

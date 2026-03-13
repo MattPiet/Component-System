@@ -2,7 +2,7 @@
 #include <SDL_image.h>
 #include <Utils/MemoryMonitor.h>
 
-SkyBoxComponent::SkyBoxComponent(Ref<Component> parent_,const char* posXFileName_, const char* negXFileName_,
+SkyBoxComponent::SkyBoxComponent(std::weak_ptr<Component> parent_,const char* posXFileName_, const char* negXFileName_,
 	const char* posYFileName_, const char* negYFileName_,
 	const char* posZFileName_, const char* negZFileName_) : Component(parent_), posXFileName(posXFileName_),
 negXFileName(negXFileName_),

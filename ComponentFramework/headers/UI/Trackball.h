@@ -16,7 +16,7 @@ union SDL_Event;
 		float m_Yaw = 0.0f;
 		float m_Pitch = 0.0f;
 		int lastMouseX, lastMouseY;
-		float m_Sensitivity = 0.3f; 
+		float m_Sensitivity = 0.3f;
 	public:
 		bool Trackingx = true;
 		bool Trackingz = true;
@@ -35,8 +35,8 @@ union SDL_Event;
 		///Any time the window dimensions change like stretching it we will
 		/// need to rebuild the invNDC matrix
 		void setWindowDimensions();
-		void onLeftMouseDown(int x, int y);
-		void onLeftMouseUp(int x, int y);
+		void onRightMouseDown(int x, int y);
+		void onRightMouseUp(int x, int y);
 		void onMouseMove(int x, int y);
 	};
 

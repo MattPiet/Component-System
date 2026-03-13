@@ -38,8 +38,8 @@ private:
 	// 1. Update your stored angles (Add these floats to your class)
 	float m_Yaw = 0.0f;
 	float m_Pitch = 0.0f;
-	float m_Sensitivity = 100.0f;
-	float CameraSpeed = 10.0f;
+	float m_Sensitivity = 60.0f;
+
 
 public:
 	explicit ChessScene();

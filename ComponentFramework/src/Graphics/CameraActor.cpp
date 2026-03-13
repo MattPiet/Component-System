@@ -2,7 +2,7 @@
 #include <Physics/TransformComponent.h>
 #include <Core/Debug.h>
 #include <SDL3/SDL.h>
-CameraActor::CameraActor(Ref<Actor> parent_, float fovy, float aspectRatio, float near, float far) : Actor(parent_), 
+CameraActor::CameraActor(std::weak_ptr<Component> parent_, float fovy, float aspectRatio, float near, float far) : Actor(parent_), 
 orientation(), projectionMatrix(), viewMatrix(), position(), trackball(), textureID(0)
 {
 	projectionMatrix = MMath::perspective(fovy, aspectRatio, near, far);
@@ -31,11 +31,18 @@ bool CameraActor::OnCreate()
 
 void CameraActor::UpdateViewMatrix(const SDL_Event &sdlEvent)
 {
+	if (sdlEvent.type == SDL_EVENT_MOUSE_WHEEL)
+	{
+		if (SDL_GetGlobalMouseState(NULL, NULL) & SDL_BUTTON_RMASK) {
+			CameraSpeed += sdlEvent.wheel.y * 2.0f; 
+		}
+		if (CameraSpeed < 0.0f) CameraSpeed = 0.0f;
+		if (CameraSpeed > 100.0f) CameraSpeed = 100.0f;
+	}
 	// Only let the trackball update if it's a mouse event
 	if (sdlEvent.type == SDL_EVENT_MOUSE_MOTION ||
 		sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
 		sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-
 		trackball.HandleEvents(sdlEvent);
 		orientation = trackball.getQuat(); // Sync camera to trackball
 	}

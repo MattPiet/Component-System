@@ -4,20 +4,24 @@
 #include <Scenes/ChessScene.h>
 #include <MMath.h>
 #include <Core/Debug.h>
-#include <Core/GuiWindow.h>
 #include <Graphics/MaterialComponent.h>
 #include <Graphics/MeshComponent.h>
 #include <Graphics/ShaderComponent.h>
 #include <Physics/TransformComponent.h>
 #include <Graphics/SkyBoxComponent.h>
+#include <Physics/PhysicsComponent.h>
+#include <Physics/CollisionComponent.h>
+#include <Physics/CollisionSystem.h>
 #include <random>
 #include <UI/UIManager.h>
-#include <Utils/MemoryMonitor.h>
+
 
 
 //// Assimp includes
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
+
+
 
 
 ChessScene::ChessScene() :
@@ -34,11 +38,11 @@ ChessScene::~ChessScene() {
 
 bool ChessScene::OnCreate() {
 	// me make camera here I wanted to have a skybox so I just made it a material comp
-	camera = std::make_unique<CameraActor>(nullptr, 45.0f, 16.0f / 9.0f, 0.5f, 100.0f);
-	camera->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, -5.0f), Quaternion());
-	camera->AddComponent<ShaderComponent>(nullptr, "shaders/skyBoxVert.glsl", "shaders/skyBoxFrag.glsl");
-	camera->AddComponent<MeshComponent>(nullptr, "meshes/Cube.obj");
-	camera->AddComponent<SkyBoxComponent>(nullptr,
+	camera = std::make_unique<CameraActor>(std::weak_ptr<Component>(), 45.0f, 16.0f / 9.0f, 0.5f, 400.0f);
+	camera->AddComponent<TransformComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, -5.0f), Quaternion());
+	camera->AddComponent<ShaderComponent>(std::weak_ptr<Component>(), "shaders/skyBoxVert.glsl", "shaders/skyBoxFrag.glsl");
+	camera->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Cube.obj");
+	camera->AddComponent<SkyBoxComponent>(std::weak_ptr<Component>(),
 		"textures/skybox/StarSkyboxPosx.png",
 		"textures/skybox/StarSkyboxNegx.png",
 		"textures/skybox/StarSkyboxPosy.png",
@@ -48,12 +52,12 @@ bool ChessScene::OnCreate() {
 	camera->OnCreate();
 
 	// this is the foundation all living things come back to the game board. Literally everything except the camera is parented to it
-	GameBoardActor = std::make_shared<Actor>(nullptr);
+	GameBoardActor = std::make_shared<Actor>(std::weak_ptr<Component>());
 	//std::shared_ptr<ShaderComponent> shader =  std::make_shared<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
-	GameBoardActor->AddComponent<MaterialComponent>(nullptr, "textures/ChessBoard.png");
-	GameBoardActor->AddComponent<MeshComponent>(nullptr, "meshes/Plane.obj");
-	GameBoardActor->AddComponent<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
-	GameBoardActor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, -1.5f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
+	GameBoardActor->AddComponent<MaterialComponent>(std::weak_ptr<Component>(), "textures/ChessBoard.png");
+	GameBoardActor->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Plane.obj");
+	GameBoardActor->AddComponent<ShaderComponent>(std::weak_ptr<Component>(), "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
+	GameBoardActor->AddComponent<TransformComponent>(std::weak_ptr<Component>(), Vec3(0.0f, -1.5f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 	GameBoardActor->OnCreate();
 
 	GameBoardActor->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(-1.0f, 0.0f, 0.0f)));
@@ -62,39 +66,39 @@ bool ChessScene::OnCreate() {
 
 
 	// Im not commenting alla this its setting up meshes and mats
-	std::shared_ptr<Actor> ParentActor = std::make_shared<Actor>(nullptr);
-	ParentActor->AddComponent<MaterialComponent>(nullptr, "textures/White Chess Base Colour.png");
-	ParentActor->AddComponent<MeshComponent>(nullptr, "meshes/Rook.obj");
+	std::shared_ptr<Actor> ParentActor = std::make_shared<Actor>(std::weak_ptr<Component>());
+	ParentActor->AddComponent<MaterialComponent>(std::weak_ptr<Component>(), "textures/White Chess Base Colour.png");
+	ParentActor->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Rook.obj");
 	ParentActor->OnCreate();
 	Resources.emplace("ParentPiece", std::move(ParentActor));
 
-	std::shared_ptr<Actor> BlackMaterial = std::make_shared<Actor>(nullptr);
-	BlackMaterial->AddComponent<MaterialComponent>(nullptr, "textures/Black Chess Base Colour.png");
+	std::shared_ptr<Actor> BlackMaterial = std::make_shared<Actor>(std::weak_ptr<Component>());
+	BlackMaterial->AddComponent<MaterialComponent>(std::weak_ptr<Component>(), "textures/Black Chess Base Colour.png");
 	BlackMaterial->OnCreate();
 	Resources.emplace("BlackMaterial", std::move(BlackMaterial));
 
-	std::shared_ptr<Actor> Knight = std::make_shared<Actor>(nullptr);
-	Knight->AddComponent<MeshComponent>(nullptr, "meshes/Knight.obj");
+	std::shared_ptr<Actor> Knight = std::make_shared<Actor>(std::weak_ptr<Component>());
+	Knight->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Knight.obj");
 	Knight->OnCreate();
 	Resources.emplace("KnightMesh", std::move(Knight));
 
-	std::shared_ptr<Actor> Bishop = std::make_shared<Actor>(nullptr);
-	Bishop->AddComponent<MeshComponent>(nullptr, "meshes/Bishop.obj");
+	std::shared_ptr<Actor> Bishop = std::make_shared<Actor>(std::weak_ptr<Component>());
+	Bishop->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Bishop.obj");
 	Bishop->OnCreate();
 	Resources.emplace("BishopMesh", std::move(Bishop));
 
-	std::shared_ptr<Actor> Queen = std::make_shared<Actor>(nullptr);
-	Queen->AddComponent<MeshComponent>(nullptr, "meshes/Queen.obj");
+	std::shared_ptr<Actor> Queen = std::make_shared<Actor>(std::weak_ptr<Component>());
+	Queen->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Queen.obj");
 	Queen->OnCreate();
 	Resources.emplace("QueenMesh", std::move(Queen));
 
-	std::shared_ptr<Actor> King = std::make_shared<Actor>(nullptr);
-	King->AddComponent<MeshComponent>(nullptr, "meshes/King.obj");
+	std::shared_ptr<Actor> King = std::make_shared<Actor>(std::weak_ptr<Component>());
+	King->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/King.obj");
 	King->OnCreate();
 	Resources.emplace("KingMesh", std::move(King));
 
-	std::shared_ptr<Actor> Pawn = std::make_shared<Actor>(nullptr);
-	Pawn->AddComponent<MeshComponent>(nullptr, "meshes/Pawn.obj");
+	std::shared_ptr<Actor> Pawn = std::make_shared<Actor>(std::weak_ptr<Component>());
+	Pawn->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Pawn.obj");
 	Pawn->OnCreate();
 	Resources.emplace("PawnMesh", std::move(Pawn));
 
@@ -118,7 +122,9 @@ bool ChessScene::OnCreate() {
 		}
 		std::string actorName = pieceType + colour + std::to_string(i);
 
-		actor->AddComponent<TransformComponent>(nullptr, Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.75f, 0.75f, 0.75f));
+		actor->AddComponent<TransformComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.75f, 0.75f, 0.75f));
+		actor->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(),actor->GetComponent<TransformComponent>(), 1.0f);
+		actor->AddComponent<CollisionComponent>(std::weak_ptr<Component>(), actor->GetComponent<PhysicsComponent>());
 		if (actorName.find("Rook") != std::string::npos)		  actor->AddComponent<MeshComponent>(Resources.at("ParentPiece")->GetComponent<MeshComponent>());
 		else if (actorName.find("Knight") != std::string::npos)   actor->AddComponent<MeshComponent>(Resources.at("KnightMesh")->GetComponent<MeshComponent>());
 		else if (actorName.find("Bishop") != std::string::npos)   actor->AddComponent<MeshComponent>(Resources.at("BishopMesh")->GetComponent<MeshComponent>());
@@ -196,7 +202,7 @@ bool ChessScene::OnCreate() {
 		std::string lightName = "Light" + std::to_string(i);
 		std::unique_ptr<LightActor> Light = std::make_unique<LightActor>(GameBoardActor);
 
-		Light->AddComponent<TransformComponent>(nullptr, positions[i], Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
+		Light->AddComponent<TransformComponent>(std::weak_ptr<Component>(), positions[i], Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 		Light->OnCreate();
 		// right now they all have the same spec but I might change it later so I just made it an array like the diffuse
 		Light->SetSpecular(Vec4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -219,6 +225,12 @@ bool ChessScene::OnCreate() {
 	Vec3 rotatedOffset = QMath::rotate(offset, camera->GetOrientation());
 	Vec3 cameraPos = Vec3(0.0f, 0.0f, 0.0f) + rotatedOffset;
 	camera->SetView(camera->GetOrientation(), cameraPos);
+	ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->SetPosition(Vec3(ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().x - xStep,
+		ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().y, 25.0f));
+
+	ActorList.at("RookWhite0")->GetComponent<CollisionComponent>()->set_collideable(true);
+	ActorList.at("KnightWhite1")->GetComponent<CollisionComponent>()->set_collideable(true);
+	
 	return true;
 }
 
@@ -372,7 +384,7 @@ void ChessScene::Update(const float deltaTime) {
 		if (movement.x != 0.0f || movement.z != 0.0f) {
 
 			camera->SetView(camera->GetOrientation(),
-				camera->freeCameraMovement(movement * CameraSpeed * deltaTime));
+				camera->freeCameraMovement(movement * camera->GetCameraSpeed() * deltaTime));
 		}
 
 		float rightStickX = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) / 32767.0f;
@@ -390,7 +402,7 @@ void ChessScene::Update(const float deltaTime) {
 			Quaternion qPitch = QMath::angleAxisRotation(m_Pitch, Vec3(1.0f, 0.0f, 0.0f));
 
 			camera->GetComponent<TransformComponent>()->SetOrientation(qYaw * qPitch);
-			camera->SetView(camera->GetComponent<TransformComponent>()->GetQuaternion(), camera->freeCameraMovement(movement * CameraSpeed * deltaTime));
+			camera->SetView(camera->GetComponent<TransformComponent>()->GetQuaternion(), camera->freeCameraMovement(movement * camera->GetCameraSpeed() * deltaTime));
 		}
 	}
 	// Camera Movement with keyboard inputs
@@ -399,18 +411,32 @@ void ChessScene::Update(const float deltaTime) {
 	// I think Ill put all this code into the camera class later but I left it here so you could see it
 	const bool* keyboardState = SDL_GetKeyboardState(NULL);
 	Vec3 velocity(0.0f, 0.0f, 0.0f);
-	float CameraSpeed = 20.0f;
-	if (keyboardState[SDL_SCANCODE_W])      velocity.z -= CameraSpeed;
-	if (keyboardState[SDL_SCANCODE_S])      velocity.z += CameraSpeed;
-	if (keyboardState[SDL_SCANCODE_A])      velocity.x -= CameraSpeed;
-	if (keyboardState[SDL_SCANCODE_D])      velocity.x += CameraSpeed;
-	if (keyboardState[SDL_SCANCODE_SPACE])  velocity.y += CameraSpeed;
-	if (keyboardState[SDL_SCANCODE_LSHIFT]) velocity.y -= CameraSpeed;
+	if (keyboardState[SDL_SCANCODE_W])      velocity.z -= camera->GetCameraSpeed();
+	if (keyboardState[SDL_SCANCODE_S])      velocity.z += camera->GetCameraSpeed();
+	if (keyboardState[SDL_SCANCODE_A])      velocity.x -= camera->GetCameraSpeed();
+	if (keyboardState[SDL_SCANCODE_D])      velocity.x += camera->GetCameraSpeed();
+	if (keyboardState[SDL_SCANCODE_SPACE])  velocity.y += camera->GetCameraSpeed();
+	if (keyboardState[SDL_SCANCODE_LSHIFT]) velocity.y -= camera->GetCameraSpeed();
 	if (VMath::mag(velocity) > 0.0f) {
 		velocity = VMath::normalize(velocity);
-		Vec3 displacement = velocity * CameraSpeed * deltaTime;
+		Vec3 displacement = velocity * camera->GetCameraSpeed() * deltaTime;
 		camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(displacement));
 	}
+
+	//// Physics
+	//ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->apply_force(Vec3(0.0f, 0.0f, 0.1f));
+	//ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->Update(deltaTime);
+	ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->apply_force(Vec3(0.0f, 0.0f, -1.0f));
+	for (auto const& [name, actor] : ActorList)
+	{
+		actor->GetComponent<PhysicsComponent>()->Update(deltaTime);
+		for (auto const& [otherName, otherActor] : ActorList)
+		{
+			CollisionSystem::obb_response(actor->GetComponent<CollisionComponent>(), otherActor->GetComponent<CollisionComponent>());
+		}
+	}
+
+	
 }
 
 void ChessScene::Render() const {
@@ -477,6 +503,7 @@ void ChessScene::Render() const {
 		// if your white become white if your black become black
 		glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
 		actor->GetComponent<MeshComponent>()->Render();
+		actor->GetComponent<CollisionComponent>()->Render();
 	}
 		glUseProgram(0);
 }

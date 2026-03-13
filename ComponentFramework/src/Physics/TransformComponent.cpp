@@ -1,6 +1,6 @@
 #include <Physics/TransformComponent.h>
 #include <Utils/MemoryMonitor.h>
-TransformComponent::TransformComponent(Ref<Component> parent_) : Component(parent_){}
+TransformComponent::TransformComponent(std::weak_ptr<Component> parent_) : Component(parent_){}
 
 Matrix4 TransformComponent::GetTransformMatrix() const
 {
@@ -10,7 +10,7 @@ Matrix4 TransformComponent::GetTransformMatrix() const
 	 
 }
 
-TransformComponent::TransformComponent(Ref<Component> parent_, Vec3 pos_, Quaternion orientation_, Vec3 scale_) : Component(parent_),
+TransformComponent::TransformComponent(std::weak_ptr<Component> parent_, Vec3 pos_, Quaternion orientation_, Vec3 scale_) : Component(parent_),
 pos(pos_), 
 orientation(orientation_), 
 scale(scale_){}

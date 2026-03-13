@@ -2,7 +2,7 @@
 #include <Core/Debug.h>
 #include <Utils/MemoryMonitor.h>
 
-Actor::Actor(Ref<Component> parent_):Component(parent_) {}
+Actor::Actor(std::weak_ptr<Component> parent_):Component(parent_) {}
 
 bool Actor::OnCreate() {
 	if (isCreated) return true;
