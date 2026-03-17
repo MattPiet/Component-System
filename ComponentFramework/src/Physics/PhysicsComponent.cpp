@@ -1,8 +1,13 @@
 ﻿#include <Physics/PhysicsComponent.h>
 
-PhysicsComponent::PhysicsComponent(std::weak_ptr<Component> parent_, std::shared_ptr<TransformComponent> transform, float mass) : Component(parent_), transform_(transform), mass_(mass)
+
+PhysicsComponent::PhysicsComponent(std::weak_ptr<Component> parent_, Vec3 pos_, Quaternion orientation_, Vec3 scale_) :
+TransformComponent(parent_, pos_, orientation_, scale_){}
+
+PhysicsComponent::PhysicsComponent(std::weak_ptr<Component> parent_): TransformComponent(parent_)
 {
 }
+
 
 PhysicsComponent::~PhysicsComponent()
 {
@@ -10,7 +15,7 @@ PhysicsComponent::~PhysicsComponent()
 
 void PhysicsComponent::update_position(float deltaTime)
 {
-   transform_.lock()->SetPosition(transform_.lock()->GetPosition() + velocity_ * deltaTime + 0.5f * acceleration_ * deltaTime * deltaTime);
+   SetPosition(GetPosition() + velocity_ * deltaTime + 0.5f * acceleration_ * deltaTime * deltaTime);
 }
 
 void PhysicsComponent::update_velocity(float deltaTime)

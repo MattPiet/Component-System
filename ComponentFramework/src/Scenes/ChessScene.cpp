@@ -11,18 +11,12 @@
 #include <Graphics/SkyBoxComponent.h>
 #include <Physics/PhysicsComponent.h>
 #include <Physics/CollisionComponent.h>
-#include <Physics/CollisionSystem.h>
 #include <random>
 #include <UI/UIManager.h>
-
-
 
 //// Assimp includes
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
-
-
-
 
 ChessScene::ChessScene() :
 drawInWireMode{false},
@@ -39,7 +33,7 @@ ChessScene::~ChessScene() {
 bool ChessScene::OnCreate() {
 	// me make camera here I wanted to have a skybox so I just made it a material comp
 	camera = std::make_unique<CameraActor>(std::weak_ptr<Component>(), 45.0f, 16.0f / 9.0f, 0.5f, 400.0f);
-	camera->AddComponent<TransformComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, -5.0f), Quaternion());
+	camera->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, -5.0f), Quaternion());
 	camera->AddComponent<ShaderComponent>(std::weak_ptr<Component>(), "shaders/skyBoxVert.glsl", "shaders/skyBoxFrag.glsl");
 	camera->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Cube.obj");
 	camera->AddComponent<SkyBoxComponent>(std::weak_ptr<Component>(),
@@ -57,11 +51,11 @@ bool ChessScene::OnCreate() {
 	GameBoardActor->AddComponent<MaterialComponent>(std::weak_ptr<Component>(), "textures/ChessBoard.png");
 	GameBoardActor->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Plane.obj");
 	GameBoardActor->AddComponent<ShaderComponent>(std::weak_ptr<Component>(), "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
-	GameBoardActor->AddComponent<TransformComponent>(std::weak_ptr<Component>(), Vec3(0.0f, -1.5f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
+	GameBoardActor->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(), Vec3(0.0f, -1.5f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 	GameBoardActor->OnCreate();
 
-	GameBoardActor->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(-1.0f, 0.0f, 0.0f)));
-	GameBoardActor->GetComponent<TransformComponent>()->SetScale(Vec3(5.0f, 5.0f, 5.0f));
+	GameBoardActor->GetComponent<PhysicsComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(-1.0f, 0.0f, 0.0f)));
+	GameBoardActor->GetComponent<PhysicsComponent>()->SetScale(Vec3(5.0f, 5.0f, 5.0f));
 	// this is me map I made one map that stores all physical actors. I did a map cuz its easier to track stuff
 
 
@@ -102,10 +96,26 @@ bool ChessScene::OnCreate() {
 	Pawn->OnCreate();
 	Resources.emplace("PawnMesh", std::move(Pawn));
 
+	std::shared_ptr<Actor> sphere_ = std::make_shared<Actor>(std::weak_ptr<Component>());
+	sphere_->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Sphere.obj");
+	sphere_->OnCreate();
+	Resources.emplace("Sphere", std::move(sphere_));
+
+	std::shared_ptr<Actor> Box = std::make_shared<Actor>(std::weak_ptr<Component>());
+	Box->AddComponent<MeshComponent>(std::weak_ptr<Component>(), "meshes/Cube.obj");
+	Box->OnCreate();
+	Resources.emplace("Box", std::move(Box));
+	
+	std::shared_ptr<Actor> CollisionShader = std::make_shared<Actor>(std::weak_ptr<Component>());
+	CollisionShader->AddComponent<ShaderComponent>(std::weak_ptr<Component>(), "shaders/defaultVert.glsl", "shaders/defaultFrag.glsl");
+	CollisionShader->OnCreate();
+	Resources.emplace("CollisionShader", std::move(CollisionShader));
+
 	// Make names for the map
 	std::vector<std::string> pieceTypes = { "Rook", "Knight", "Bishop", "Queen", "King", "Bishop", "Knight", "Rook" };
 
-	for (int i = 0; i < 32; i++) {
+	for (int i = 0; i < 32; i++)
+	{
 		// parent everything to the board
 		std::unique_ptr<Actor> actor = std::make_unique<Actor>(GameBoardActor);
 		// once we pass 16 the pieces are black
@@ -121,25 +131,58 @@ bool ChessScene::OnCreate() {
 			pieceType = "Pawn";
 		}
 		std::string actorName = pieceType + colour + std::to_string(i);
-
-		actor->AddComponent<TransformComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.75f, 0.75f, 0.75f));
-		actor->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(),actor->GetComponent<TransformComponent>(), 1.0f);
-		actor->AddComponent<CollisionComponent>(std::weak_ptr<Component>(), actor->GetComponent<PhysicsComponent>());
+		actor->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.75f, 0.75f, 0.75f));
+		
+		Vec3 scale = actor->GetComponent<PhysicsComponent>()->GetScale();
+		// float hx = (gridStep / 2.0f) * 0.9f; 
+		// float hz = (gridStep / 2.0f) * 0.9f;
+		float hx = 5.0f * scale.x / 2.0f ;
+		float hz = 5.0f * scale.z / 2.0f;
+		float hy = 5.5f * scale.y; 
+		Vec3 halfExts(hx, hy, hz);
+		
+		
 		if (actorName.find("Rook") != std::string::npos)		  actor->AddComponent<MeshComponent>(Resources.at("ParentPiece")->GetComponent<MeshComponent>());
 		else if (actorName.find("Knight") != std::string::npos)   actor->AddComponent<MeshComponent>(Resources.at("KnightMesh")->GetComponent<MeshComponent>());
-		else if (actorName.find("Bishop") != std::string::npos)   actor->AddComponent<MeshComponent>(Resources.at("BishopMesh")->GetComponent<MeshComponent>());
-		else if (actorName.find("Queen") != std::string::npos)    actor->AddComponent<MeshComponent>(Resources.at("QueenMesh")->GetComponent<MeshComponent>());
-		else if (actorName.find("King") != std::string::npos)     actor->AddComponent<MeshComponent>(Resources.at("KingMesh")->GetComponent<MeshComponent>());
+		else if (actorName.find("Bishop") != std::string::npos)
+		{
+			actor->AddComponent<MeshComponent>(Resources.at("BishopMesh")->GetComponent<MeshComponent>());
+			halfExts.y += 1.0f;
+		}
+		else if (actorName.find("Queen") != std::string::npos)
+		{
+			actor->AddComponent<MeshComponent>(Resources.at("QueenMesh")->GetComponent<MeshComponent>());
+			halfExts.y += 1.5f;
+		}
+		else if (actorName.find("King") != std::string::npos)
+		{
+			actor->AddComponent<MeshComponent>(Resources.at("KingMesh")->GetComponent<MeshComponent>());
+			halfExts.y += 3.0f;
+		}
 		else if (actorName.find("Pawn") != std::string::npos)     actor->AddComponent<MeshComponent>(Resources.at("PawnMesh")->GetComponent<MeshComponent>());
 
 		if (actorName.find("White") != std::string::npos)
-		actor->AddComponent<MaterialComponent>(Resources.at("ParentPiece")->GetComponent<MaterialComponent>());
+			actor->AddComponent<MaterialComponent>(Resources.at("ParentPiece")->GetComponent<MaterialComponent>());
 		else
 			actor->AddComponent<MaterialComponent>(Resources.at("BlackMaterial")->GetComponent<MaterialComponent>());
+
+		actor->AddComponent<CollisionComponent>(std::weak_ptr<Component>(), halfExts);
+		actor->GetComponent<CollisionComponent>()->set_collider_type(ColliderType::OBB);
+		if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::SPHERE) {
+			collision_boxes.emplace(actorName + "Box", Resources.at("Sphere"));
+		}
+		else if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::AABB || actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::OBB) {
+			collision_boxes.emplace(actorName + "Box", Resources.at("Box"));
+		}
+		actor->GetComponent<CollisionComponent>()->draw = true;
 		actor->OnCreate();
 
 		ActorList.emplace(actorName, std::move(actor));
 	}
+	ActorList.at("KnightWhite1")->GetComponent<CollisionComponent>()->draw = true;
+	ActorList.at("RookWhite0")->GetComponent<CollisionComponent>()->draw = true;
+	collision_system_ = std::make_unique<CollisionSystem>();
+	
 	/*// print the names cuz why not
 	for (const auto& pair : ActorList) {
 		const std::string& name = pair.first;
@@ -147,8 +190,11 @@ bool ChessScene::OnCreate() {
 	//	std::cout << "Actor Name: " << name << std::endl;
 	}*/
 	// turn the white knights cuz they face backwards
-	ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f,Vec3(0.0f,1.0f,0.0f)));
-	ActorList.at("KnightWhite6")->GetComponent<TransformComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
+	ActorList.at("RookWhite0")->GetComponent<PhysicsComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(45.0f, Vec3(1.0f, 0.0f, 1.0f)));
+	//ActorList.at("RookWhite0")->GetComponent<PhysicsComponent>()->set_position(ActorList.at("RookWhite0")->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(0.0f, 5.0f, 0.0f));
+	ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f,Vec3(0.0f,1.0f,0.0f)));
+	ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(45.0f,Vec3(-1.0f,0.0f,0.0f)));
+	ActorList.at("KnightWhite6")->GetComponent<PhysicsComponent>()->SetOrientation(QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)) * QMath::angleAxisRotation(180.0f, Vec3(0.0f, 1.0f, 0.0f)));
 	Vec3 startPos = Vec3(-22.25f, -22.25f, 0.0f);
 	float xStep = 6.35f;
 	float yStep = 6.35f;
@@ -177,7 +223,7 @@ bool ChessScene::OnCreate() {
 			float newX = startPos.x + (col * xStep);
 			float newY = startPos.y + (row * yStep);
 			// move the piece to the right spot
-			ActorList.at(name)->GetComponent<TransformComponent>()->SetPosition(Vec3(newX, newY, 0.0f));
+			ActorList.at(name)->GetComponent<PhysicsComponent>()->SetPosition(Vec3(newX, newY, 0.0f));
 		}
 	}
 	// This is the start of the light setup. Below are the positions
@@ -202,7 +248,7 @@ bool ChessScene::OnCreate() {
 		std::string lightName = "Light" + std::to_string(i);
 		std::unique_ptr<LightActor> Light = std::make_unique<LightActor>(GameBoardActor);
 
-		Light->AddComponent<TransformComponent>(std::weak_ptr<Component>(), positions[i], Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
+		Light->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(), positions[i], Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 		Light->OnCreate();
 		// right now they all have the same spec but I might change it later so I just made it an array like the diffuse
 		Light->SetSpecular(Vec4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -227,9 +273,6 @@ bool ChessScene::OnCreate() {
 	camera->SetView(camera->GetOrientation(), cameraPos);
 	ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->SetPosition(Vec3(ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().x - xStep,
 		ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().y, 25.0f));
-
-	ActorList.at("RookWhite0")->GetComponent<CollisionComponent>()->set_collideable(true);
-	ActorList.at("KnightWhite1")->GetComponent<CollisionComponent>()->set_collideable(true);
 	
 	return true;
 }
@@ -240,6 +283,8 @@ void ChessScene::OnDestroy() {
 	Lights.clear();
 	Resources.clear();
 	camera.reset();
+	collision_boxes.clear();
+	collision_system_.reset();
 	if (gamepad) {
 		SDL_CloseGamepad(gamepad); 
 		gamepad = nullptr;
@@ -258,20 +303,20 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 			case SDL_SCANCODE_LEFT:
 				// move board
 				// it dont work cuz it gets overriden in update but hey its here
-				GameBoardActor->GetComponent<TransformComponent>()->SetPosition(
-					GameBoardActor->GetComponent<TransformComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
+				GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(
+					GameBoardActor->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_RIGHT:
-				GameBoardActor->GetComponent<TransformComponent>()->SetPosition(
-					GameBoardActor->GetComponent<TransformComponent>()->GetPosition() + Vec3(1.0f, 0.0f, 0.0f));
+				GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(
+					GameBoardActor->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(1.0f, 0.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_UP:
-				GameBoardActor->GetComponent<TransformComponent>()->SetPosition(
-					GameBoardActor->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, 1.0f, 0.0f));
+				GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(
+					GameBoardActor->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(0.0f, 1.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_DOWN:
-				GameBoardActor->GetComponent<TransformComponent>()->SetPosition(
-					GameBoardActor->GetComponent<TransformComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
+				GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(
+					GameBoardActor->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
 				break;
 		}
 		break;
@@ -367,7 +412,7 @@ void ChessScene::Update(const float deltaTime) {
 	float speed = 1.0f;
 	float t = (sin(totalTime * speed) + 1.0f) / 2.0f;
 	Vec3 newPos = VMath::lerp(leftPos, rightPos, t);
-	GameBoardActor->GetComponent<TransformComponent>()->SetPosition(newPos);
+	GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(newPos);
 	// This is all the logic for the controller input moving the controller 
 	// I left it here for you to see Ill probably move it to somewhere else later
 	if (gamepad && SDL_GamepadConnected(gamepad)) {
@@ -401,8 +446,8 @@ void ChessScene::Update(const float deltaTime) {
 			Quaternion qYaw = QMath::angleAxisRotation(m_Yaw, Vec3(0.0f, 1.0f, 0.0f));
 			Quaternion qPitch = QMath::angleAxisRotation(m_Pitch, Vec3(1.0f, 0.0f, 0.0f));
 
-			camera->GetComponent<TransformComponent>()->SetOrientation(qYaw * qPitch);
-			camera->SetView(camera->GetComponent<TransformComponent>()->GetQuaternion(), camera->freeCameraMovement(movement * camera->GetCameraSpeed() * deltaTime));
+			camera->GetComponent<PhysicsComponent>()->SetOrientation(qYaw * qPitch);
+			camera->SetView(camera->GetComponent<PhysicsComponent>()->GetQuaternion(), camera->freeCameraMovement(movement * camera->GetCameraSpeed() * deltaTime));
 		}
 	}
 	// Camera Movement with keyboard inputs
@@ -424,18 +469,16 @@ void ChessScene::Update(const float deltaTime) {
 	}
 
 	//// Physics
-	//ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->apply_force(Vec3(0.0f, 0.0f, 0.1f));
-	//ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->Update(deltaTime);
-	ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->apply_force(Vec3(0.0f, 0.0f, -1.0f));
+	ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->apply_force(Vec3(0.0f, 0.0f, -9.8f));
 	for (auto const& [name, actor] : ActorList)
 	{
 		actor->GetComponent<PhysicsComponent>()->Update(deltaTime);
-		for (auto const& [otherName, otherActor] : ActorList)
+		for (const auto& [otherName, otherActor] : ActorList)
 		{
-			CollisionSystem::obb_response(actor->GetComponent<CollisionComponent>(), otherActor->GetComponent<CollisionComponent>());
+			if (name == otherName) continue;
+			collision_system_->handle_collisions(actor.get(), otherActor.get());
 		}
 	}
-
 	
 }
 
@@ -478,7 +521,7 @@ void ChessScene::Render() const {
 	for (const auto& [name, light] : Lights) {
 		if (i >= 5) break;
 		// this math actually converts the light position from local to world space and then to view space so everything doesnt go dark.
-		Vec3 localPosistion = light->GetComponent<TransformComponent>()->GetPosition();
+		Vec3 localPosistion = light->GetComponent<PhysicsComponent>()->GetPosition();
 		Vec3 worldPosistion = GameBoardActor->GetModelMatrix() * localPosistion;
 		allPosistions[i] = camera->GetViewMatrix() * worldPosistion;
 		allAmbient[i] = light->GetAmbient();
@@ -503,8 +546,28 @@ void ChessScene::Render() const {
 		// if your white become white if your black become black
 		glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
 		actor->GetComponent<MeshComponent>()->Render();
-		actor->GetComponent<CollisionComponent>()->Render();
 	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glUseProgram(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetProgram());
+	glUniformMatrix4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
+	glUniformMatrix4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
+	for (auto const& [name, actor] : ActorList)
+	{
+		if (actor->GetComponent<CollisionComponent>()->draw)
+		for (const auto& [boxName, boxActor] : collision_boxes)
+		{
+			Matrix4 colliderModelMatrix = actor->GetModelMatrix();
+			auto colComp = actor->GetComponent<CollisionComponent>();
+			if (!colComp->draw) continue; // Skip if we aren't drawing this one
+			colliderModelMatrix = colComp->CalculateModelMatrix(colliderModelMatrix);
+			glUniformMatrix4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"), 1, GL_FALSE, colliderModelMatrix);
+			glUniform4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("colour"), 1, colComp->get_collision_colour());
+			boxActor->GetComponent<MeshComponent>()->Render();
+			
+		}
+	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glUseProgram(0);
 }
 

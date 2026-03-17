@@ -1,12 +1,12 @@
 #ifndef ChessScene_H
 #define ChessScene_H
 #include <Core/Scene.h>
-#include "Vector.h"
+#include <Vector.h>
 #include <Matrix.h>
-#include <QMath.h>
+#include <Graphics/LightActor.h>
 #include <Core/Actor.h>
 #include <Graphics/CameraActor.h>
-#include <Graphics/LightActor.h>
+#include <Physics/CollisionSystem.h>
 #include <unordered_map>
 
 using namespace MATH;
@@ -18,6 +18,7 @@ class ChessScene : public Scene {
 private:
 	std::unique_ptr<CameraActor> camera;
 	std::shared_ptr<Actor> GameBoardActor;
+	std::unique_ptr<CollisionSystem> collision_system_;
 	bool drawInWireMode;
 	bool showImGuiDemoWindow = true; // optional for testing
 	char textBuffer[256] = "";       // input text buffer
@@ -31,6 +32,7 @@ private:
 	Matrix4 modelMatrix;
 
 	std::unordered_map<std::string, std::unique_ptr<Actor>> ActorList;
+	std::unordered_map<std::string, std::shared_ptr<Actor>> collision_boxes;
 	std::unordered_map<std::string, std::unique_ptr<LightActor>> Lights;
 	std::unordered_map<std::string, std::shared_ptr<Actor>> Resources;
 	

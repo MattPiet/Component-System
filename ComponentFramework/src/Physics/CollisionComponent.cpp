@@ -1,48 +1,80 @@
 ﻿#include <Physics/CollisionComponent.h>
 #include <glew.h>
-
-CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, Ref<PhysicsComponent> physics, MATHEX::Plane plane) : Component(parent_), physics_component_(physics) ,plane_(plane)
+CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, Plane plane_) : Component(parent_), plane(plane_)
 {
+    colliderType = ColliderType::PLANE;
 }
 
-CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, Ref<PhysicsComponent> physics, float radius) : Component(parent_), physics_component_(physics) ,radius_(radius)
+void CollisionComponent::calculate_center(const Vec3& position, const Quaternion& Ori)
 {
+    if (colliderType == ColliderType::SPHERE)
+    {
+        sphere.center = Vec3(position.x, position.y + radius, position.z);
+    }
+    else if (colliderType == ColliderType::AABB)
+    {
+        aabb.center = Vec3(position.x, position.y + halfExtents.y, position.z);
+        aabb.halfExtents = halfExtents;
+    }
+    else if (colliderType == ColliderType::OBB)
+    {
+        Vec3 offset = Vec3(0.0f, halfExtents.y, 0.0f);
+        Vec3 rotatedOffset = QMath::rotate(offset, Ori);
+
+        obb.center = position + rotatedOffset;
+        obb.halfExtents = halfExtents;
+    }
+    
 }
 
-CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, Ref<PhysicsComponent> physics, AABB aabb) : Component(parent_), physics_component_(physics) , aabb_(aabb)
+MATH::Matrix4 CollisionComponent::CalculateModelMatrix(MATH::Matrix4 BaseMM) const
 {
-}
+    	
+    MATH::Matrix4 colliderModelMatrix = BaseMM;
 
-CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, Ref<PhysicsComponent> physics) : Component(parent_), physics_component_(physics)
-{
-    collider_type_ = ColliderType::obb;
-    obb_.center = physics_component_.lock()->get_position();
-    obb_.halfExtents = physics_component_.lock()->get_scale() * 0.5f; 
-}
+    switch (get_colliderType())
+    {
+    case ColliderType::SPHERE:
+        {
+            colliderModelMatrix = colliderModelMatrix * MMath::translate(Vec3(0.0f, sphere.r, 0.0f))
+                                                       * MMath::scale(Vec3(sphere.r, sphere.r, sphere.r));
+        }
+        break;
+    case ColliderType::AABB:
+        {
+            colliderModelMatrix = colliderModelMatrix * MMath::translate(Vec3(0.0f, halfExtents.y, 0.0f))
+                                                       * MMath::scale(halfExtents);
+        }
+        break;
 
-CollisionComponent::~CollisionComponent()
-{
-}
-
-bool CollisionComponent::OnCreate()
-{
-    if (isCreated) return true;
-    isCreated = true;
-    return true;
-}
-
-void CollisionComponent::OnDestroy()
-{
-}
-
-void CollisionComponent::Update(const float deltaTime_)
-{
+    case ColliderType::OBB:
+        {
+            colliderModelMatrix = colliderModelMatrix * MMath::translate(Vec3(0.0f, halfExtents.y, 0.0f))
+                                                       * MMath::scale(halfExtents);
+        }
+        break;
+    default:
+			
+        break;
+    }
+    return colliderModelMatrix;
 }
 
 void CollisionComponent::Render() const
 {
-        /// im lazy and just wanna submit this shit so Ill probably do a cube mesh in a wire frame later
- 
+    
 }
 
+CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, float radius_) : Component(parent_), radius(radius_)
+{
+    colliderType = ColliderType::SPHERE;
+    sphere.r = radius;
+}
+
+CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, Vec3 halfExtents_) : Component(parent_), halfExtents(halfExtents_)
+{
+    colliderType = ColliderType::AABB;
+    aabb.halfExtents = halfExtents;
+    obb.halfExtents = halfExtents;
+}
 
