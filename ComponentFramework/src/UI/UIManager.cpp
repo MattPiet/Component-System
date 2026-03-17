@@ -13,6 +13,16 @@ void UIManager::StartInvisibleWindow(const char* Label,ImVec2 pos){
 										 | ImGuiWindowFlags_AlwaysAutoResize); // this basically sets the window to be invisible
 }
 
+void UIManager::StartDebugWindow(const char* Label, ImVec2 pos, ImVec2 size)
+{
+	ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing); // (x, y) in screen coordinates
+	ImGui::SetNextWindowSize(size, ImGuiCond_Appearing);
+	ImGui::SetNextWindowBgAlpha(1.0f); // Fully opaque background (0 = invisible, 1 = opaque)
+	ImGui::Begin(Label, nullptr, ImGuiWindowFlags_NoResize
+									  | ImGuiWindowFlags_AlwaysVerticalScrollbar
+									  | ImGuiWindowFlags_AlwaysHorizontalScrollbar); 
+}
+
 void UIManager::EndWindow(){
 	ImGui::End();
 }

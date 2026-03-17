@@ -30,6 +30,7 @@ public:
     bool CollisionDetection(const Sphere &s1, const Sphere &s2) const; 
     bool CollisionDetection(const AABB &bb1, const AABB &bb2) const; 
     bool CollisionDetection(const Sphere s1, const Plane p1) const;
+    bool RayIntersectsOBB(Ref<CollisionComponent> col, const Matrix4& modelMatrix, const Vec3& rayOrigin, const Vec3& rayDir, float& outDist);
     bool obb_response(const OBB& obbA, const OBB& obbB,  Ref<PhysicsComponent> pc1, Ref<PhysicsComponent> pc2 );
     void SphereSphereCollisionResponse(Sphere s1, Ref<PhysicsComponent> pc1, Sphere s2, Ref<PhysicsComponent> pc2);
     void AABBAABBCollisionResponse(const AABB& bb1, Ref<PhysicsComponent> pc1, const AABB& bb2, Ref<PhysicsComponent> pc2);

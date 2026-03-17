@@ -378,7 +378,81 @@ void CollisionSystem::handle_collisions(Actor* actor, Actor* otherActor)
 	}
 	
 }
+bool CollisionSystem::RayIntersectsOBB(Ref<CollisionComponent> col, const Matrix4& modelMatrix, const Vec3& rayOrigin, const Vec3& rayDir, float& outDist) {
+    
+    if (!col) return false;
 
+    // Get the hitbox mm same as in render
+    Matrix4 hitboxTransform = col->CalculateModelMatrix(modelMatrix);
+
+    // Then find out the position of it by extracting these collunms 
+    Vec3 worldBoxCenter(hitboxTransform[12], hitboxTransform[13], hitboxTransform[14]);
+    Vec3 halfExtents = col->get_OBB().halfExtents;
+
+    // These represent the distance from the ray origin to the entry and exit points
+    float distToEntry = -FLT_MAX;
+    float distToExit = FLT_MAX;
+
+    // Vector from the ray start to the center of the box
+    Vec3 rayToBoxDelta = worldBoxCenter - rayOrigin;
+
+    for (int i = 0; i < 3; i++) {
+       // get the normalized world-space axis (X, Y, or Z)
+       Vec3 rotationAxis = VMath::normalize(Vec3(hitboxTransform[i*4], hitboxTransform[i*4+1], hitboxTransform[i*4+2]));
+        
+       // Project the distance to the center and the ray direction onto the axis
+       float centerDistOnAxis = VMath::dot(rotationAxis, rayToBoxDelta);
+       float rayDirectionOnAxis = VMath::dot(rayDir, rotationAxis);
+
+       if (std::fabs(rayDirectionOnAxis) > 0.001f) {
+       	// d1 and d2 are the distances to the two parallel QUADS for this axis
+       	float d1 = (centerDistOnAxis + halfExtents[i]) / rayDirectionOnAxis;
+       	float d2 = (centerDistOnAxis - halfExtents[i]) / rayDirectionOnAxis;
+          
+          if (d1 > d2) std::swap(d1, d2);
+
+       	// all this math is dumbed down to each axis forms different zones if you will
+       	// these zones are mode of two planes that form a tunnel between them.
+       	
+          // this is figuring how far into that tunnel (dist between two quads) our ray has traveled 
+          if (d1 > distToEntry) distToEntry = d1;
+          if (d2 < distToExit) distToExit = d2;
+
+
+       	/*  ________                  ________
+			 A_1    |                 B_1    | hit box half extents
+		     |      |                 |      |
+		     |      |                 |      |
+		     |      |                 |      |
+		     |      |                 |      |
+			 +------|A_0              +------|B_0
+		    /       |                /       |
+		   /        |               /        |
+	      /         |              /         |
+	        --------                 --------
+	         A_2                      B_2
+		  */
+
+       	// same drawing again lol it's hard to paint the picture on a 2d image but essentially each axis xyz make two faces left right for x the rest are obvious
+       	// those faces are located at the center of the box + the half exts (kinda but also literally that) the rest of this math basically finds the length of the ray at each plane intersection
+       	// if that distance between the entry to the mouse is greater the exit to the mouse then it never even hit the box at all
+       	// if the distance of exit is 0 then the exit is behind the rays origin which is a funky problem if your like inside a col box
+       	// if the ray is parrllel with the a plane then its impossible for it to have hit
+       	
+          // If entry is further than exit, the ray missed the box entirely
+          if (distToEntry > distToExit) return false;
+          // If the exit is behind the ray origin, the box is behind us
+          if (distToExit < 0) return false;
+       } else {
+          // Ray is parallel; if the origin is outside the slab, it's a miss
+          if (-centerDistOnAxis - halfExtents[i] > 0 || -centerDistOnAxis + halfExtents[i] < 0) return false;
+       }
+    }
+
+    // Output the final distance to the closest hit point
+    outDist = distToEntry;
+    return true;
+}
 
 void CollisionSystem::Update(const float deltaTime)
 {

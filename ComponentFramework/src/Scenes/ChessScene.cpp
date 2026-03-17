@@ -174,13 +174,13 @@ bool ChessScene::OnCreate() {
 		else if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::AABB || actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::OBB) {
 			collision_boxes.emplace(actorName + "Box", Resources.at("Box"));
 		}
-		actor->GetComponent<CollisionComponent>()->draw = true;
+	//	actor->GetComponent<CollisionComponent>()->draw = true;
 		actor->OnCreate();
 
 		ActorList.emplace(actorName, std::move(actor));
 	}
-	ActorList.at("KnightWhite1")->GetComponent<CollisionComponent>()->draw = true;
-	ActorList.at("RookWhite0")->GetComponent<CollisionComponent>()->draw = true;
+	//ActorList.at("KnightWhite1")->GetComponent<CollisionComponent>()->draw = true;
+	//ActorList.at("RookWhite0")->GetComponent<CollisionComponent>()->draw = true;
 	collision_system_ = std::make_unique<CollisionSystem>();
 	
 	/*// print the names cuz why not
@@ -228,10 +228,10 @@ bool ChessScene::OnCreate() {
 	}
 	// This is the start of the light setup. Below are the positions
 	Vec3 positions[5] = {
-		Vec3(-20.0f,  0.0f,   10.0f), // Far Left 
-		Vec3(20.0f,  0.0f,   10.0f), // Far Right 
-		Vec3(-10.0f, -20.0f,  10.0f), // Close Left 
-		Vec3(10.0f, -20.0f,  10.0f), // Close Right 
+		Vec3(-20.0f,  0.0f,   20.0f), // Far Left 
+		Vec3(20.0f,  0.0f,   20.0f), // Far Right 
+		Vec3(-10.0f, -20.0f,  20.0f), // Close Left 
+		Vec3(10.0f, -20.0f,  0.0f), // Close Right 
 		Vec3(0.0f,  0.0f,   10.0f)  // Dead Center
 	};
 
@@ -303,20 +303,20 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 			case SDL_SCANCODE_LEFT:
 				// move board
 				// it dont work cuz it gets overriden in update but hey its here
-				GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(
-					GameBoardActor->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
+				ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->SetPosition(
+					ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_RIGHT:
-				GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(
-					GameBoardActor->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(1.0f, 0.0f, 0.0f));
+				ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->SetPosition(
+					ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(1.0f, 0.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_UP:
-				GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(
-					GameBoardActor->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(0.0f, 1.0f, 0.0f));
+				ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->SetPosition(
+					ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(0.0f, 1.0f, 0.0f));
 				break;
 			case SDL_SCANCODE_DOWN:
-				GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(
-					GameBoardActor->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
+				ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->SetPosition(
+					ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
 				break;
 		}
 		break;
@@ -372,7 +372,51 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 		break;
 
 	case SDL_EVENT_MOUSE_BUTTON_DOWN:
-	
+	if (sdlEvent.button.button == SDL_BUTTON_LEFT)
+	{
+		float mouseX, mouseY;
+		SDL_GetMouseState(&mouseX, &mouseY);
+		int w, h;
+		SDL_GetWindowSize(SDL_GetWindowFromID(sdlEvent.button.windowID), &w, &h);
+
+		// NDC
+		float x = (2.0f * mouseX) / static_cast<float>(w) - 1.0f;
+		float y = 1.0f - (2.0f * mouseY) / static_cast<float>(h); 
+
+		// take the inv proj to get to view space
+		Matrix4 invProj = MMath::inverse(camera->GetProjectionMatrix());
+		Vec4 rayView = invProj * Vec4(x, y, -1.0f, 1.0f); 
+		rayView /= rayView.w; // Normalize the perspective W
+		// the rest is self explanatory by the names of the vars
+		Matrix4 camWorldMatrix = MMath::inverse(camera->GetViewMatrix());
+
+		Vec4 worldPoint = camWorldMatrix * rayView;
+		Vec3 worldRayStart = camera->GetPosition();
+		Vec3 worldRayDir = VMath::normalize(Vec3(worldPoint.x, worldPoint.y, worldPoint.z) - worldRayStart);
+
+		std::string bestHitName = "";
+		float minT = FLT_MAX;
+
+		for (auto const& [name, actor] : ActorList) {
+			float t;
+			auto col = actor->GetComponent<CollisionComponent>();
+			// Get the matrix that accounts for the parent board's movement
+			Matrix4 modelMatrix = actor->GetModelMatrix(); 
+
+			if (collision_system_->RayIntersectsOBB(col, modelMatrix, worldRayStart, worldRayDir, t)) {
+				if (t > 0.0f && t < minT) {
+					minT = t;
+					bestHitName = name;
+					actor->GetComponent<CollisionComponent>()->set_collision_colour(Vec4(1.0f,0.0f,0.0f,1.0f));
+				}
+			}
+		}
+
+		if (!bestHitName.empty()) {
+			selectedActorName = bestHitName;
+			std::cout << "Selected: " << selectedActorName << " at Distance: " << minT << std::endl;
+		}
+	}
 		break; 
 
 	case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -390,18 +434,64 @@ void ChessScene::RenderGUI()
 	ImVec4 g = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImVec4 b = ImVec4(0.0f, 0.0f, 1.0f, 1.0f);
 
-	UIManager::StartInvisibleWindow("GunSelector", ImVec2(0, 10));
+	UIManager::StartInvisibleWindow("DropDownMenu", ImVec2(0, 10));
 	UIManager::PushButtonStyle(b, g, r, 5.0f);
 
-	if (ImGui::Button("Test")) {
-		r = ImVec4(0.5f, 0.0f, 0.0f, 1.0f);
+	if (ImGui::Button("ShowDebug Window")) {
+		showDebugWindow = !showDebugWindow;
 	}
+	// Render the debug window if the toggle is true
+	if (showDebugWindow) {
+		UIManager::StartDebugWindow("Debug Window", ImVec2(1665, 10), ImVec2(250, 500));
+		static bool showCollisionBoxState = false;
+		if (ImGui::Checkbox("Show Collision Boxes", &showCollisionBoxState))
+		{
+			for (auto const& [name, actor]  : ActorList)
+			{
+				actor->GetComponent<CollisionComponent>()->draw = showCollisionBoxState;
+			}
+		}
+		if (ImGui::CollapsingHeader("Light Controls")) {
+			for (auto& [name, light] : Lights) {
+				if (ImGui::TreeNode(name.c_str())) {
+					Vec4 diff = light->GetDiffuse();
+					if (ImGui::ColorEdit4("Diffuse", &diff.x)) {
+						light->SetDiffuse(diff);
+					}
+					ImGui::TreePop();
+				}
+			}
+		}
+		if (ImGui::CollapsingHeader("Entity Inspector")) {
+			
+    
+			// Create a selectable list of all actors
+			if (ImGui::BeginChild("ActorList", ImVec2(0, 150), true)) {
+				for (auto const& [name, actor] : ActorList) {
+					if (ImGui::Selectable(name.c_str(), selectedActorName == name)) {
+						selectedActorName = name;
+					}
+				}
+			}
+			ImGui::EndChild();
 
-	if (ImGui::Button("Test Two")) {
-		r = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+			// Show details for the selected actor
+			if (ActorList.count(selectedActorName)) {
+				auto& actor = ActorList.at(selectedActorName);
+				auto phys = actor->GetComponent<PhysicsComponent>();
+				actor->GetComponent<CollisionComponent>()->set_collision_colour(Vec4(1.0f,0.0f,0.0f,1.0f));
+				ImGui::SeparatorText(selectedActorName.c_str());
+				Vec3 pos = phys->GetPosition();
+				if (ImGui::DragFloat3("Position", &pos.x, 0.1f)) {
+					phys->SetPosition(pos);
+				}
+			}
+		}
+		UIManager::EndWindow();
 	}
 	UIManager::PopButtonStyle();
 	UIManager::EndWindow();
+	
 }
 
 void ChessScene::Update(const float deltaTime) {
@@ -476,11 +566,12 @@ void ChessScene::Update(const float deltaTime) {
 		for (const auto& [otherName, otherActor] : ActorList)
 		{
 			if (name == otherName) continue;
+			if (name == selectedActorName || otherName == selectedActorName) continue;
 			// made a function cuz it's less in the scene this function will automatically swap between each collision type no matter what it is
 			collision_system_->handle_collisions(actor.get(), otherActor.get());
 		}
 	}
-	
+
 }
 
 void ChessScene::Render() const {

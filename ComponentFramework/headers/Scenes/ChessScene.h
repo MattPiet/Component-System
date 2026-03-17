@@ -30,6 +30,7 @@ private:
 	Matrix4 projectionMatrix;
 	Matrix4 viewMatrix;
 	Matrix4 modelMatrix;
+	std::string selectedActorName = "";
 
 	std::unordered_map<std::string, std::unique_ptr<Actor>> ActorList;
 	std::unordered_map<std::string, std::shared_ptr<Actor>> collision_boxes;

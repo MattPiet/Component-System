@@ -6,6 +6,8 @@
 #include <MMath.h>
 #include <QMath.h>
 
+#include "Physics/PhysicsComponent.h"
+
 using namespace MATH;
 
 class CameraActor : public Actor
@@ -21,7 +23,7 @@ public:
 	CameraActor(std::weak_ptr<Component> parent_, float fovy, float aspectRatio, float near, float far);
 	~CameraActor();
 	Matrix4 GetProjectionMatrix() const { return projectionMatrix; }
-	Matrix4 GetViewMatrix() const { return MMath::inverse(MMath::toMatrix4(orientation)) * MMath::inverse(MMath::translate(position)); }
+	Matrix4 GetViewMatrix() const { return MMath::inverse(MMath::toMatrix4(GetOrientation())) * MMath::inverse(MMath::translate(GetPosition())); }
 	void UpdateViewMatrix(const SDL_Event& sdlEvent);
 	void setViewMatrix(const Matrix4& viewMatrix_) { viewMatrix = viewMatrix_; }
 
@@ -34,7 +36,8 @@ public:
 		return rotated_forward_in_cam_space;
 	}
 
-	Quaternion GetOrientation() const { return orientation; }
+	Quaternion GetOrientation() const { return GetComponent<PhysicsComponent>()->GetQuaternion(); }
+	Vec3 GetPosition() const { return GetComponent<PhysicsComponent>()->GetPosition(); }
 
 	float GetCameraSpeed() const { return CameraSpeed; }
 
