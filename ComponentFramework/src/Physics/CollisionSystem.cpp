@@ -3,7 +3,7 @@
 bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<PhysicsComponent> pc1, Ref<PhysicsComponent> pc2 ,Vec3& outNormal, float& outPenetration)
 {
     /*  ________                  ________
-           A_2    |                 B_2    | hit box half extents
+           A_1    |                 B_1    | hit box half extents
         |      |                 |      |
         |      |                 |      |
         |      |                 |      |
@@ -13,8 +13,26 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
       /        |               /        |
      /         |              /         |
      --------                 --------
-     A_3                      B_3
+     A_2                      B_2
         */ // old dia from midstone same stuff ish tho
+
+	/* in all tho it does paint a good picture of whats happening
+	 * Basically you get three axis from the orientation of the object then rip throw a bunch of cross products of them
+	 * And before any crosses are made we check each basic axis this is essentially meaning is the distance between A0 and B0 smaller than there lengths if so thats a overlap we then check every possible overlap
+	 * so now we do the cross of ever potential case like this in no particular order.
+	 * A_0 X B_0, A_0 XB_1, A_0 X B_2, A_1 X B_1, A_1 X B_0, A_1 X B_2, A_2 X B_2, A_2 X B_0, A_2 X B_1
+	 * now if ya count that its 9 cross products for now a total of 15 axis
+	 * ok so now that we have the cross axis we need to project points on those axes
+	 * if the axis are
+	 * then we see if the two points overlap
+	 * if all 9 potential collisions overlap then we have a collision
+	 * test which one overlaps the least or what the best axis is then detect an overlap from that
+	 * send out how much penetration there was and the collision normal
+	 * we do that by adjusting the two values passed in
+	 *
+	 * Thats a lot but it boils down to this there are 15 axis in total first we check the 6 coming from each objects center one at a time only after all of those 6 detect overlap do we move on
+	 * We then do 9 crosses each one at a time and checking each overlap before making the next cross product (it saves on performance) only if all of those 9 AND the 6 from before detect overlap do we have a collision
+	 */
     if (pc1 && pc2)
     {
         Vec3 centerA = obbA.center;
@@ -63,6 +81,7 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
         float minPen = FLT_MAX;
         Vec3 bestAxis = Vec3(0, 0, 0);
 
+    	// as the name entails this actually checks for the overlaps between everything
         auto CheckAxis = [&](const Vec3& axis, float dist, float ra, float rb)
         {
             float overlap = ra + rb - std::fabs(dist);
@@ -84,6 +103,8 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
         // Axes A0, A1, A2
         for (int i = 0; i < 3; i++)
         {
+        	// And before any crosses are made we check each basic axis this is essentially meaning is the distance between A0 and B0 smaller than there lengths if so thats a collision
+        	// This comment is for here
             ra = halfExtA[i];
             rb = halfExtB.x * AbsR[i][0] +
                 halfExtB.y * AbsR[i][1] +
@@ -97,6 +118,8 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
         // Axes B0, B1, B2
         for (int j = 0; j < 3; j++)
         {
+        	// And before any crosses are made we check each basic axis this is essentially meaning is the distance between A0 and B0 smaller than there lengths if so thats a collision
+        	// This comment is for here
             ra = halfExtA.x * AbsR[0][j] +
                 halfExtA.y * AbsR[1][j] +
                 halfExtA.z * AbsR[2][j];
@@ -112,6 +135,8 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
         }
 
         // Cross products Ai × Bj
+    	// so this is the 9 crosses of each objects axis against the potentially overlapping objects axis
+    	// for loop runs like this main loop A0 against all b so 3 then a1 against all b so total 6 then a2 against all b so total 9 bringing the final axis total to 15
         for (int i = 0; i < 3; i++)
             for (int j = 0; j < 3; j++)
             {
@@ -148,11 +173,12 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
 
  bool CollisionSystem::obb_response(const OBB& obbA, const OBB& obbB,  Ref<PhysicsComponent> pc1, Ref<PhysicsComponent> pc2 )
 {
+	// this is one the normal and two the amount of pen between two boxes
      Vec3 normal;
      float penetration;
-  
+		// detection return false if not true
      if (!CollisionDetection(obbA, obbB, pc1, pc2, normal, penetration)) return false;
-  
+	// I like breaking it down it's easier so I setup a bunch of variables that fall out of scope but it makes it easier to read
      auto phys1 = pc1;
      auto phys2 = pc2;
      if (!phys1 || !phys2) return false;
@@ -161,19 +187,20 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
     float m1 = phys1->get_mass();
     float m2 = phys2->get_mass();
 
-
+	// inverse masses
     float invM1 = (m1 > 0.0f) ? 1.0f / m1 : 0.0f;
     float invM2 = (m2 > 0.0f) ? 1.0f / m2 : 0.0f;
     float invMassSum = invM1 + invM2;
     
     if (invMassSum <= 0.0f) return false;
-    
+    // center positions
     Vec3 posA = obbA.center;
     Vec3 posB = obbB.center;  
-    
+    // vels
     Vec3 velA = phys1->get_velocity();
     Vec3 velB = phys2->get_velocity();
     Vec3 relativeVel = velB - velA;
+	// vels dotted on the Cnormal
     float separatingVel = VMath::dot(relativeVel, normal);
     
     if (invMassSum > 0.0f)
@@ -183,6 +210,9 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
 
         float correctionMag = std::max(penetration - slop, 0.0f) / invMassSum * percent;
         Vec3 correction = correctionMag * normal;
+    	// ok this part is iffy and there is another fine tuner in the detection but this is essentially a buffer for what the pen threshold is for pos correction.
+    	// You could tweak this in detection instead of setting up a barrier but if you do that then you wont be adjusting velocity every single time its needed
+    	// but if you do a pos correction every time you basically tp the two objects on top of each other. soooooo if the correction mag/ the amount of correctiong needed is super super fucking small then dont correct
         if (correctionMag  > 0.05f)
         {
             Vec3 newPosA = posA - correction * invM1;
@@ -192,7 +222,7 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
             phys2->set_position(newPosB);
         }
     }
-    
+    // just take that seperating vel/dot along the normal from earlier and give it some impulse then multiply it by mass and add/subtract vel
     if (separatingVel > 0.0f) return false;
         float restitution = (separatingVel < -1.0f) ? 0.1f : 0.0f;
         float j = -(1.0f + restitution) * separatingVel;
@@ -276,10 +306,12 @@ void CollisionSystem::AABBAABBCollisionResponse(const AABB& bb1, Ref<PhysicsComp
 
 void CollisionSystem::handle_collisions(Actor* actor, Actor* otherActor)
 {
-    
+    // I call this here everytime just incase somewhere else the object was rotated and whoever rotated it (me) didnt recalculate the center..... also once something collides the center needs to be recalculated also when something moves
+	// the center needs to be recalculated so I do it here and after ever single response to make triple sure we dont get a double collision within the same tick
     actor->GetComponent<CollisionComponent>()->calculate_center(actor->GetComponent<PhysicsComponent>()->GetPosition(),actor->GetComponent<PhysicsComponent>()->GetQuaternion());
 	otherActor->GetComponent<CollisionComponent>()->calculate_center(otherActor->GetComponent<PhysicsComponent>()->GetPosition(),otherActor->GetComponent<PhysicsComponent>()->GetQuaternion());
 
+	// Sphere Sphere Collision
 	if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::SPHERE &&
 		otherActor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::SPHERE)
 	{
@@ -301,6 +333,7 @@ void CollisionSystem::handle_collisions(Actor* actor, Actor* otherActor)
 			otherActor->GetComponent<CollisionComponent>()->set_collision_colour(Vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		}
 	}
+	// AABB - AABB collision or none rotating Quad Quad
 	else if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::AABB &&
 		otherActor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::AABB)
 	{
@@ -322,11 +355,14 @@ void CollisionSystem::handle_collisions(Actor* actor, Actor* otherActor)
 			otherActor->GetComponent<CollisionComponent>()->set_collision_colour(Vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		}
 	}
+	// OBB - OBB or Oriented Bounding Box so a rotating box
 	else if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::OBB &&
 		otherActor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::OBB)
 	{
 		OBB obb1 = actor->GetComponent<CollisionComponent>()->get_OBB();
 		OBB obb2 = otherActor->GetComponent<CollisionComponent>()->get_OBB();
+		// I call response because it calls detection I coded it like that for Mid-Stone and although it's a simple fix there is no reason to fix it really
+		// plus I actually like it better this way ya only needa call one
 		if (obb_response(obb1, obb2, actor->GetComponent<PhysicsComponent>(), otherActor->GetComponent<PhysicsComponent>()))
 		{
 		    actor->GetComponent<CollisionComponent>()->set_collision_colour(Vec4(1.0f, 0.0f, 0.0f, 1.0f));

@@ -7,6 +7,7 @@ CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, Plane p
 
 void CollisionComponent::calculate_center(const Vec3& position, const Quaternion& Ori)
 {
+    // basically this just takes the position of the object sets the hitbox center to it then pushes it up by the half extents on y
     if (colliderType == ColliderType::SPHERE)
     {
         sphere.center = Vec3(position.x, position.y + radius, position.z);
@@ -18,6 +19,7 @@ void CollisionComponent::calculate_center(const Vec3& position, const Quaternion
     }
     else if (colliderType == ColliderType::OBB)
     {
+        // OBB is different since it uses rotations as well, whenever we rotate the object we need its position to account for that
         Vec3 offset = Vec3(0.0f, halfExtents.y, 0.0f);
         Vec3 rotatedOffset = QMath::rotate(offset, Ori);
 
@@ -29,7 +31,8 @@ void CollisionComponent::calculate_center(const Vec3& position, const Quaternion
 
 MATH::Matrix4 CollisionComponent::CalculateModelMatrix(MATH::Matrix4 BaseMM) const
 {
-    	
+    	// fairly self-explanatory just push it up a bit so its placed around its center and not the center of the mm
+        // it will auto rotate as needed and scale as needed cuz its bound to the actual mm
     MATH::Matrix4 colliderModelMatrix = BaseMM;
 
     switch (get_colliderType())
@@ -73,6 +76,7 @@ CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, float r
 
 CollisionComponent::CollisionComponent(std::weak_ptr<Component> parent_, Vec3 halfExtents_) : Component(parent_), halfExtents(halfExtents_)
 {
+    // no point not to do both in one shot but by default were setting it up as aabb
     colliderType = ColliderType::AABB;
     aabb.halfExtents = halfExtents;
     obb.halfExtents = halfExtents;

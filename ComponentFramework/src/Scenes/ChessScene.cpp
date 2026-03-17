@@ -132,16 +132,15 @@ bool ChessScene::OnCreate() {
 		}
 		std::string actorName = pieceType + colour + std::to_string(i);
 		actor->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, 0.0f), QMath::angleAxisRotation(90.0f, Vec3(1.0f, 0.0f, 0.0f)), Vec3(0.75f, 0.75f, 0.75f));
-		
+
+		// setup hit box
 		Vec3 scale = actor->GetComponent<PhysicsComponent>()->GetScale();
-		// float hx = (gridStep / 2.0f) * 0.9f; 
-		// float hz = (gridStep / 2.0f) * 0.9f;
 		float hx = 5.0f * scale.x / 2.0f ;
 		float hz = 5.0f * scale.z / 2.0f;
 		float hy = 5.5f * scale.y; 
 		Vec3 halfExts(hx, hy, hz);
 		
-		
+		// setup meshes
 		if (actorName.find("Rook") != std::string::npos)		  actor->AddComponent<MeshComponent>(Resources.at("ParentPiece")->GetComponent<MeshComponent>());
 		else if (actorName.find("Knight") != std::string::npos)   actor->AddComponent<MeshComponent>(Resources.at("KnightMesh")->GetComponent<MeshComponent>());
 		else if (actorName.find("Bishop") != std::string::npos)
@@ -166,6 +165,7 @@ bool ChessScene::OnCreate() {
 		else
 			actor->AddComponent<MaterialComponent>(Resources.at("BlackMaterial")->GetComponent<MaterialComponent>());
 
+		/// Initialize collisions
 		actor->AddComponent<CollisionComponent>(std::weak_ptr<Component>(), halfExts);
 		actor->GetComponent<CollisionComponent>()->set_collider_type(ColliderType::OBB);
 		if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::SPHERE) {
@@ -476,6 +476,7 @@ void ChessScene::Update(const float deltaTime) {
 		for (const auto& [otherName, otherActor] : ActorList)
 		{
 			if (name == otherName) continue;
+			// made a function cuz it's less in the scene this function will automatically swap between each collision type no matter what it is
 			collision_system_->handle_collisions(actor.get(), otherActor.get());
 		}
 	}
@@ -547,7 +548,7 @@ void ChessScene::Render() const {
 		glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
 		actor->GetComponent<MeshComponent>()->Render();
 	}
-
+	// render collsion boxes
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glUseProgram(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetProgram());
 	glUniformMatrix4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
@@ -560,6 +561,7 @@ void ChessScene::Render() const {
 			Matrix4 colliderModelMatrix = actor->GetModelMatrix();
 			auto colComp = actor->GetComponent<CollisionComponent>();
 			if (!colComp->draw) continue; // Skip if we aren't drawing this one
+			// make the mm for the hit boxes works with all types of collisions
 			colliderModelMatrix = colComp->CalculateModelMatrix(colliderModelMatrix);
 			glUniformMatrix4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"), 1, GL_FALSE, colliderModelMatrix);
 			glUniform4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("colour"), 1, colComp->get_collision_colour());
