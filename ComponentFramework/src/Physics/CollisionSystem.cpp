@@ -18,7 +18,7 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
 
 	/* in all tho it does paint a good picture of whats happening
 	 * Basically you get three axis from the orientation of the object then rip throw a bunch of cross products of them
-	 * And before any crosses are made we check each basic axis this is essentially meaning is the distance between A0 and B0 smaller than there lengths if so thats a overlap we then check every possible overlap
+	 * And before any crosses are made we check each basic axis this is essentially meaning, is the distance between A0 and B0 smaller than their lengths if so thats a overlap we then check every possible overlap
 	 * so now we do the cross of ever potential case like this in no particular order.
 	 * A_0 X B_0, A_0 XB_1, A_0 X B_2, A_1 X B_1, A_1 X B_0, A_1 X B_2, A_2 X B_2, A_2 X B_0, A_2 X B_1
 	 * now if ya count that its 9 cross products for now a total of 15 axis
@@ -213,7 +213,7 @@ bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<
     	// ok this part is iffy and there is another fine tuner in the detection but this is essentially a buffer for what the pen threshold is for pos correction.
     	// You could tweak this in detection instead of setting up a barrier but if you do that then you wont be adjusting velocity every single time its needed
     	// but if you do a pos correction every time you basically tp the two objects on top of each other. soooooo if the correction mag/ the amount of correctiong needed is super super fucking small then dont correct
-        if (correctionMag  > 0.05f)
+        if (correctionMag  > 0.08f)
         {
             Vec3 newPosA = posA - correction * invM1;
             Vec3 newPosB = posB + correction * invM2;
@@ -435,9 +435,9 @@ bool CollisionSystem::RayIntersectsOBB(Ref<CollisionComponent> col, const Matrix
 
        	// same drawing again lol it's hard to paint the picture on a 2d image but essentially each axis xyz make two faces left right for x the rest are obvious
        	// those faces are located at the center of the box + the half exts (kinda but also literally that) the rest of this math basically finds the length of the ray at each plane intersection
-       	// if that distance between the entry to the mouse is greater the exit to the mouse then it never even hit the box at all
-       	// if the distance of exit is 0 then the exit is behind the rays origin which is a funky problem if your like inside a col box
-       	// if the ray is parrllel with the a plane then its impossible for it to have hit
+       	// if that distance between the entry to the mouse is greater than the exit to the mouse then it never even hit the box at all
+       	// if the distance of exit is 0 then the exit is behind the rays origin which is a funky problem if your inside a col box
+       	// if the ray is parrllel with a plane then its impossible for it to have hit
        	
           // If entry is further than exit, the ray missed the box entirely
           if (distToEntry > distToExit) return false;

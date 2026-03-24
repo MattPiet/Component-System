@@ -28,7 +28,6 @@ public:
 	Vec4 GetSpecular() const { return Specular; }
 	Vec4 GetDiffuse() const { return Diffuse; }
 	Vec4 GetAmbient() const { return Ambient; }
-
 };
 
 

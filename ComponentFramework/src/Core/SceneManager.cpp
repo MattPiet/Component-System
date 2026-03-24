@@ -152,8 +152,9 @@ void SceneManager::HandleEvents() {
 			switch (sdlEvent.key.scancode) {
 				[[fallthrough]]; /// C17 Prevents switch/case fallthrough warnings
 			case SDL_SCANCODE_ESCAPE:
-			case SDL_SCANCODE_Q:
 				isRunning = false;
+			case SDL_SCANCODE_Q:
+				
 				return;
 			case SDL_SCANCODE_F1:
 				BuildNewScene(SCENE_NUMBER::SCENE0g);
@@ -204,4 +205,17 @@ bool SceneManager::BuildNewScene(SCENE_NUMBER scene) {
 		return false;
 	}
 	return true;
+}
+
+void SceneManager::Quit()
+{
+	SDL_Event sdlevent;
+	SDL_memset(&sdlevent, 0, sizeof(sdlevent)); // Clear the struct for safety
+    
+	sdlevent.type = SDL_EVENT_KEY_DOWN;
+	sdlevent.key.key = SDLK_ESCAPE; 
+	sdlevent.key.scancode = SDL_SCANCODE_ESCAPE;
+	sdlevent.key.down = true;
+
+	SDL_PushEvent(&sdlevent);
 }

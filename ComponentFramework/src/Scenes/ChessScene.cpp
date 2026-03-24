@@ -18,6 +18,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
+#include "Core/SceneManager.h"
+
 ChessScene::ChessScene() :
 drawInWireMode{false},
 window{ nullptr }, 
@@ -179,8 +181,6 @@ bool ChessScene::OnCreate() {
 
 		ActorList.emplace(actorName, std::move(actor));
 	}
-	//ActorList.at("KnightWhite1")->GetComponent<CollisionComponent>()->draw = true;
-	//ActorList.at("RookWhite0")->GetComponent<CollisionComponent>()->draw = true;
 	collision_system_ = std::make_unique<CollisionSystem>();
 	
 	/*// print the names cuz why not
@@ -220,18 +220,18 @@ bool ChessScene::OnCreate() {
 				col = localIdx % 8;
 			}
 
-			float newX = startPos.x + (col * xStep);
-			float newY = startPos.y + (row * yStep);
+			float newX = startPos.x + (static_cast<float>(col) * xStep);
+			float newY = startPos.y + (static_cast<float>(row) * yStep);
 			// move the piece to the right spot
 			ActorList.at(name)->GetComponent<PhysicsComponent>()->SetPosition(Vec3(newX, newY, 0.0f));
 		}
 	}
 	// This is the start of the light setup. Below are the positions
 	Vec3 positions[5] = {
-		Vec3(-20.0f,  0.0f,   20.0f), // Far Left 
-		Vec3(20.0f,  0.0f,   20.0f), // Far Right 
-		Vec3(-10.0f, -20.0f,  20.0f), // Close Left 
-		Vec3(10.0f, -20.0f,  0.0f), // Close Right 
+		Vec3(-20.0f,  20.0f,   10.0f), // Far Left 
+		Vec3(20.0f,  20.0f,   10.0f), // Far Right 
+		Vec3(-10.0f, -20.0f,  10.0f), // Close Left 
+		Vec3(10.0f, -20.0f,  10.0f), // Close Right 
 		Vec3(0.0f,  0.0f,   10.0f)  // Dead Center
 	};
 
@@ -256,7 +256,7 @@ bool ChessScene::OnCreate() {
 		Light->SetAmbient(Vec4(0.05f, 0.05f, 0.05f, 1.0f));
 		// Put them into a resource map.... im just being fancy I couldve made an array of them but this is more fun
 		Lights.emplace(lightName, std::move(Light));
-	};
+	}
 	// joystick setup
 	int count;
 	SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
@@ -272,7 +272,7 @@ bool ChessScene::OnCreate() {
 	Vec3 cameraPos = Vec3(0.0f, 0.0f, 0.0f) + rotatedOffset;
 	camera->SetView(camera->GetOrientation(), cameraPos);
 	ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->SetPosition(Vec3(ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().x - xStep,
-		ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().y, 25.0f));
+		ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().y, 100.0f));
 	
 	return true;
 }
@@ -285,6 +285,7 @@ void ChessScene::OnDestroy() {
 	camera.reset();
 	collision_boxes.clear();
 	collision_system_.reset();
+	GameBoardActor.reset();
 	if (gamepad) {
 		SDL_CloseGamepad(gamepad); 
 		gamepad = nullptr;
@@ -301,8 +302,7 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 				drawInWireMode = !drawInWireMode;
 				break;
 			case SDL_SCANCODE_LEFT:
-				// move board
-				// it dont work cuz it gets overriden in update but hey its here
+				// move selected actor
 				ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->SetPosition(
 					ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(-1.0f, 0.0f, 0.0f));
 				break;
@@ -318,6 +318,8 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 				ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->SetPosition(
 					ActorList.at(selectedActorName)->GetComponent<PhysicsComponent>()->GetPosition() + Vec3(0.0f, -1.0f, 0.0f));
 				break;
+    default:
+			break;
 		}
 		break;
 		// this is so I can plug in a controller while the program is runnning
@@ -343,34 +345,16 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 				gamepad = nullptr;
 			}
 			break;
-		
-			break;
 			// basic button input for controller.
 	case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 		switch (sdlEvent.gbutton.button) {
 		case SDL_GAMEPAD_BUTTON_DPAD_UP:
 			drawInWireMode = !drawInWireMode;
 			break;
+		default:
+			break;
 		}
 		break;
-	case SDL_EVENT_GAMEPAD_AXIS_MOTION:
-		if (sdlEvent.gaxis.axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
-			if (sdlEvent.gaxis.value > 16000) { // If pressed more than halfway
-				camera->SetView(camera->GetOrientation(),
-					camera->freeCameraMovement(Vec3(0.0f, 1.0f, 0.0f)));
-			}
-		}
-		else if (sdlEvent.gaxis.axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER) {
-			if (sdlEvent.gaxis.value > 16000) { // If pressed more than halfway
-				camera->SetView(camera->GetOrientation(),
-					camera->freeCameraMovement(Vec3(0.0f, -1.0f, 0.0f)));
-			}
-		}
-		break;
-	case SDL_EVENT_MOUSE_MOTION:
-
-		break;
-
 	case SDL_EVENT_MOUSE_BUTTON_DOWN:
 	if (sdlEvent.button.button == SDL_BUTTON_LEFT)
 	{
@@ -387,7 +371,7 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 		Matrix4 invProj = MMath::inverse(camera->GetProjectionMatrix());
 		Vec4 rayView = invProj * Vec4(x, y, -1.0f, 1.0f); 
 		rayView /= rayView.w; // Normalize the perspective W
-		// the rest is self explanatory by the names of the vars
+		// the rest is self-explanatory by the names of the vars
 		Matrix4 camWorldMatrix = MMath::inverse(camera->GetViewMatrix());
 
 		Vec4 worldPoint = camWorldMatrix * rayView;
@@ -401,9 +385,9 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 			float t;
 			auto col = actor->GetComponent<CollisionComponent>();
 			// Get the matrix that accounts for the parent board's movement
-			Matrix4 modelMatrix = actor->GetModelMatrix(); 
+			Matrix4 Actor_Model_Matrix = actor->GetModelMatrix(); 
 
-			if (collision_system_->RayIntersectsOBB(col, modelMatrix, worldRayStart, worldRayDir, t)) {
+			if (collision_system_->RayIntersectsOBB(col, Actor_Model_Matrix, worldRayStart, worldRayDir, t)) {
 				if (t > 0.0f && t < minT) {
 					minT = t;
 					bestHitName = name;
@@ -414,13 +398,10 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 
 		if (!bestHitName.empty()) {
 			selectedActorName = bestHitName;
-			std::cout << "Selected: " << selectedActorName << " at Distance: " << minT << std::endl;
+			std::cout << "Selected: " << selectedActorName << " at Distance: " << minT << "\n";
 		}
 	}
-		break; 
-
-	case SDL_EVENT_MOUSE_BUTTON_UP:
-	break;
+	break; 
 	default:
 		break;
     }
@@ -428,18 +409,63 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 
 void ChessScene::RenderGUI()
 {
-	//im gui stuff. I havent really done anything with it 
-	// but I wanna put the output of the memory monitor in it whenever I get around to it
+
 	ImVec4 r = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 	ImVec4 g = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImVec4 b = ImVec4(0.0f, 0.0f, 1.0f, 1.0f);
 
 	UIManager::StartInvisibleWindow("DropDownMenu", ImVec2(0, 10));
 	UIManager::PushButtonStyle(b, g, r, 5.0f);
-
-	if (ImGui::Button("ShowDebug Window")) {
-		showDebugWindow = !showDebugWindow;
+	
+	if (ImGui::Button("Quit")) {
+		SceneManager::Quit();
 	}
+
+	
+	if (showConsole) {
+		UIManager::StartCommandWindow("Developer Console", ImVec2(0, 1000), ImVec2(350, 250));
+		
+		if (consoleMessageTimer > 0.0f) {
+			
+			float alpha = std::min(1.0f, consoleMessageTimer); 
+			ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, alpha), "%s", consoleOutput.c_str());
+		}
+
+		UIManager::PushTextStyle(ImVec4(0, 1, 0, 1.0f),1.0f);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.05f, 0.05f, 0.1f, 1.0f));
+		if (ImGui::InputText("Command", commandInput, IM_ARRAYSIZE(commandInput), ImGuiInputTextFlags_EnterReturnsTrue)) {
+			std::string cmd(commandInput);
+        
+			// Reset timer and set message whenever Enter is pressed
+			consoleMessageTimer = CONSOLE_MESSAGE_DURATION;
+
+			if (cmd == "/cmds") {
+				consoleOutput = "Commands: /show debug, /hide debug, /quit";
+			}
+			else if (cmd == "/show debug") {
+				showDebugWindow = true;
+				consoleOutput = "Debug Window Enabled";
+			}
+			else if (cmd == "/hide debug") {
+				showDebugWindow = false;
+				consoleOutput = "Debug Window Hidden";
+			}
+			else if (cmd == "/quit") {
+				SDL_Event quitEvent;
+				quitEvent.type = SDL_EVENT_QUIT;
+				SDL_PushEvent(&quitEvent);
+			}
+			else {
+				consoleOutput = "Unknown command: " + cmd;
+			}
+			strcpy_s(commandInput, "");
+			ImGui::SetKeyboardFocusHere(-1); 
+		}
+		UIManager::PopTextStyle();
+		ImGui::PopStyleColor(1);
+		ImGui::End();
+	}
+	
 	// Render the debug window if the toggle is true
 	if (showDebugWindow) {
 		UIManager::StartDebugWindow("Debug Window", ImVec2(1665, 10), ImVec2(250, 500));
@@ -454,17 +480,15 @@ void ChessScene::RenderGUI()
 		if (ImGui::CollapsingHeader("Light Controls")) {
 			for (auto& [name, light] : Lights) {
 				if (ImGui::TreeNode(name.c_str())) {
-					Vec4 diff = light->GetDiffuse();
-					if (ImGui::ColorEdit4("Diffuse", &diff.x)) {
-						light->SetDiffuse(diff);
+					Vec4 diffuse = light->GetDiffuse();
+					if (ImGui::ColorEdit4("Diffuse", &diffuse.x)) {
+						light->SetDiffuse(diffuse);
 					}
 					ImGui::TreePop();
 				}
 			}
 		}
 		if (ImGui::CollapsingHeader("Entity Inspector")) {
-			
-    
 			// Create a selectable list of all actors
 			if (ImGui::BeginChild("ActorList", ImVec2(0, 150), true)) {
 				for (auto const& [name, actor] : ActorList) {
@@ -487,6 +511,13 @@ void ChessScene::RenderGUI()
 				}
 			}
 		}
+		UIManager::PushSliderStyle(b, g, r, 5.0f);
+		if (ImGui::SliderFloat("Mouse sense", &m_sens, 0, 1))
+		{
+	
+			camera->SetSensitivity(m_sens);
+		}
+		UIManager::PopSliderStyle();
 		UIManager::EndWindow();
 	}
 	UIManager::PopButtonStyle();
@@ -495,6 +526,12 @@ void ChessScene::RenderGUI()
 }
 
 void ChessScene::Update(const float deltaTime) {
+	// camera movement
+	camera->CameraMovement(deltaTime, gamepad);
+	if (consoleMessageTimer > 0.0f) {
+		consoleMessageTimer -= deltaTime;
+	}
+	// board drifting left-right
 	static float totalTime = 0.0f;
 	totalTime += deltaTime;
 	Vec3 leftPos = Vec3(-5.0f, -1.5f, -5.0f);
@@ -503,61 +540,7 @@ void ChessScene::Update(const float deltaTime) {
 	float t = (sin(totalTime * speed) + 1.0f) / 2.0f;
 	Vec3 newPos = VMath::lerp(leftPos, rightPos, t);
 	GameBoardActor->GetComponent<PhysicsComponent>()->SetPosition(newPos);
-	// This is all the logic for the controller input moving the controller 
-	// I left it here for you to see Ill probably move it to somewhere else later
-	if (gamepad && SDL_GamepadConnected(gamepad)) {
-		const float deadzone = 0.2f; 
-
-		float stickX = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX) / 32767.0f;
-		float stickY = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY) / 32767.0f;
-
-		Vec3 movement(0.0f,0.0f,0.0f);
-
-		if (SDL_fabsf(stickX) > deadzone) movement.x = stickX;
-		if (SDL_fabsf(stickY) > deadzone) movement.z = stickY;
-
-		if (movement.x != 0.0f || movement.z != 0.0f) {
-
-			camera->SetView(camera->GetOrientation(),
-				camera->freeCameraMovement(movement * camera->GetCameraSpeed() * deltaTime));
-		}
-
-		float rightStickX = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) / 32767.0f;
-		float rightStickY = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY) / 32767.0f;
-
-		if (SDL_fabsf(rightStickX) > deadzone || SDL_fabsf(rightStickY) > deadzone) {
-
-			 m_Yaw += -rightStickX * m_Sensitivity * deltaTime;
-			 m_Pitch += -rightStickY * m_Sensitivity * deltaTime;
-
-			if (m_Pitch > 89.0f)  m_Pitch = 89.0f;
-			if (m_Pitch < -89.0f) m_Pitch = -89.0f;
-
-			Quaternion qYaw = QMath::angleAxisRotation(m_Yaw, Vec3(0.0f, 1.0f, 0.0f));
-			Quaternion qPitch = QMath::angleAxisRotation(m_Pitch, Vec3(1.0f, 0.0f, 0.0f));
-
-			camera->GetComponent<PhysicsComponent>()->SetOrientation(qYaw * qPitch);
-			camera->SetView(camera->GetComponent<PhysicsComponent>()->GetQuaternion(), camera->freeCameraMovement(movement * camera->GetCameraSpeed() * deltaTime));
-		}
-	}
-	// Camera Movement with keyboard inputs
-	// tbh I just wanted to see if I could apply what I did with the controller to track ball and movement 
-	// very happy with how it turned out.
-	// I think Ill put all this code into the camera class later but I left it here so you could see it
-	const bool* keyboardState = SDL_GetKeyboardState(NULL);
-	Vec3 velocity(0.0f, 0.0f, 0.0f);
-	if (keyboardState[SDL_SCANCODE_W])      velocity.z -= camera->GetCameraSpeed();
-	if (keyboardState[SDL_SCANCODE_S])      velocity.z += camera->GetCameraSpeed();
-	if (keyboardState[SDL_SCANCODE_A])      velocity.x -= camera->GetCameraSpeed();
-	if (keyboardState[SDL_SCANCODE_D])      velocity.x += camera->GetCameraSpeed();
-	if (keyboardState[SDL_SCANCODE_SPACE])  velocity.y += camera->GetCameraSpeed();
-	if (keyboardState[SDL_SCANCODE_LSHIFT]) velocity.y -= camera->GetCameraSpeed();
-	if (VMath::mag(velocity) > 0.0f) {
-		velocity = VMath::normalize(velocity);
-		Vec3 displacement = velocity * camera->GetCameraSpeed() * deltaTime;
-		camera->SetView(camera->GetOrientation(), camera->freeCameraMovement(displacement));
-	}
-
+	
 	//// Physics
 	ActorList.at("KnightWhite1")->GetComponent<PhysicsComponent>()->apply_force(Vec3(0.0f, 0.0f, -9.8f));
 	for (auto const& [name, actor] : ActorList)
@@ -602,10 +585,14 @@ void ChessScene::Render() const {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	// One shader for everything and it is attached to the board
-	//glUseProgram(ActorList.at("GameBoard")->GetSharedComponent<ShaderComponent>()->GetProgram());
-	glUseProgram(GameBoardActor->GetComponent<ShaderComponent>()->GetProgram());
-	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
-	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
+	// render GB second
+	glUseProgram(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetProgram()));
+	glUniformMatrix4fv(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix")), 1, GL_FALSE, camera->GetProjectionMatrix());
+	glUniformMatrix4fv(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix")), 1, GL_FALSE, camera->GetViewMatrix());
+	glBindTexture(GL_TEXTURE_2D, GameBoardActor->GetComponent<MaterialComponent>()->getTextureID());
+	glUniformMatrix4fv(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"))
+											 ,1, GL_FALSE, GameBoardActor->GetModelMatrix());
+	GameBoardActor->GetComponent<MeshComponent>()->Render();
 	// render all the lights in an array
 	Vec4 allAmbient[5], allDiffuse[5], allSpecular[5];
 	Vec3 allPosistions[5];
@@ -623,17 +610,12 @@ void ChessScene::Render() const {
 	}
 	// meh if I wanna do weird lighting effects then sure use the ambient but for now it just makes everything darker and I dont want that
 	//glUniform4fv(ActorList.at("GameBoard")->GetComponent<ShaderComponent>()->GetUniformID("Ambient[0]"), 5, allAmbient[0]); look its here will it be used ya probably not cuz it makes no sense
-	glUniform4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("Diffuse[0]"), 5, allDiffuse[0]);
-	glUniform4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("Specular[0]"), 5, allSpecular[0]);
-	glUniform3fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("lightPos[0]"), 5, allPosistions[0]);
-	glBindTexture(GL_TEXTURE_2D, GameBoardActor->GetComponent<MaterialComponent>()->getTextureID());
-	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix")
-		,1, GL_FALSE, GameBoardActor->GetModelMatrix());
-	GameBoardActor->GetComponent<MeshComponent>()->Render();
-	glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
-		1, GL_FALSE, GameBoardActor->GetModelMatrix());
+	glUniform4fv(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("Diffuse[0]")), 5, allDiffuse[0]);
+	glUniform4fv(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("Specular[0]")), 5, allSpecular[0]);
+	glUniform3fv(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("lightPos[0]")), 5, allPosistions[0]);
+	// render the mesh, texture and mm of ever actor
 	for (auto const& [name, actor] : ActorList) {
-		glUniformMatrix4fv(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"),
+		glUniformMatrix4fv(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix")),
 			1, GL_FALSE, actor->GetModelMatrix());
 		// if your white become white if your black become black
 		glBindTexture(GL_TEXTURE_2D, actor->GetComponent<MaterialComponent>()->getTextureID());
@@ -641,9 +623,9 @@ void ChessScene::Render() const {
 	}
 	// render collsion boxes
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glUseProgram(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetProgram());
-	glUniformMatrix4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
-	glUniformMatrix4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, camera->GetViewMatrix());
+	glUseProgram(static_cast<GLint>(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetProgram()));
+	glUniformMatrix4fv(static_cast<GLint>(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix")), 1, GL_FALSE, camera->GetProjectionMatrix());
+	glUniformMatrix4fv(static_cast<GLint>(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix")), 1, GL_FALSE, camera->GetViewMatrix());
 	for (auto const& [name, actor] : ActorList)
 	{
 		if (actor->GetComponent<CollisionComponent>()->draw)
@@ -654,8 +636,8 @@ void ChessScene::Render() const {
 			if (!colComp->draw) continue; // Skip if we aren't drawing this one
 			// make the mm for the hit boxes works with all types of collisions
 			colliderModelMatrix = colComp->CalculateModelMatrix(colliderModelMatrix);
-			glUniformMatrix4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix"), 1, GL_FALSE, colliderModelMatrix);
-			glUniform4fv(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("colour"), 1, colComp->get_collision_colour());
+			glUniformMatrix4fv(static_cast<GLint>(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("modelMatrix")), 1, GL_FALSE, colliderModelMatrix);
+			glUniform4fv(static_cast<GLint>(Resources.at("CollisionShader")->GetComponent<ShaderComponent>()->GetUniformID("colour")), 1, colComp->get_collision_colour());
 			boxActor->GetComponent<MeshComponent>()->Render();
 			
 		}

@@ -8,7 +8,7 @@ class PhysicsComponent : public TransformComponent
     Vec3 angular_velocity_;
     Vec3 force_;
     Vec3 torque_;
-    float mass_ = 1.0f;
+    float mass_;
 public:
     PhysicsComponent(std::weak_ptr<Component> parent_,Vec3 pos_, Quaternion orientation_, Vec3 scale_ = Vec3(1.0f, 1.0f, 1.0f));
     PhysicsComponent(std::weak_ptr<Component> parent_);

@@ -38,11 +38,13 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Actor>> Resources;
 	
 
-	// 1. Update your stored angles (Add these floats to your class)
-	float m_Yaw = 0.0f;
-	float m_Pitch = 0.0f;
-	float m_Sensitivity = 60.0f;
-
+	
+	float m_sens = 0.3f;
+	float consoleMessageTimer = 0.0f;
+	std::string consoleOutput = "";
+	const float CONSOLE_MESSAGE_DURATION = 5.0f; // Seconds to stay visible
+	char commandInput[256] = ""; 
+	bool showConsole = true; 
 
 public:
 	explicit ChessScene();

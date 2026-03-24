@@ -16,7 +16,7 @@ union SDL_Event;
 		float m_Yaw = 0.0f;
 		float m_Pitch = 0.0f;
 		int lastMouseX, lastMouseY;
-		float m_Sensitivity = 0.3f;
+		float m_Sensitivity = 0.1f;
 	public:
 		bool Trackingx = true;
 		bool Trackingz = true;
@@ -29,6 +29,7 @@ union SDL_Event;
 
 		const Quaternion getQuat() const { return mouseRotationQuat; }
 		void HandleEvents(const SDL_Event &sdlEvent);
+		void SetSensitivity(float s) { m_Sensitivity = s;}
 	private:
 		/// Just some functions for internal use only thus private
 		const Vec3 getMouseVector(int x, int y);

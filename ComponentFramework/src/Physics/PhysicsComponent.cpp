@@ -2,9 +2,15 @@
 
 
 PhysicsComponent::PhysicsComponent(std::weak_ptr<Component> parent_, Vec3 pos_, Quaternion orientation_, Vec3 scale_) :
-TransformComponent(parent_, pos_, orientation_, scale_){}
+TransformComponent(parent_, pos_, orientation_, scale_),
+velocity_(Vec3(0.0f,0.0f,0.0f)),
+torque_(Vec3(0.0f,0.0f,0.0f)),
+acceleration_(Vec3(0.0f,0.0f,0.0f)),mass_(1.0f){}
 
-PhysicsComponent::PhysicsComponent(std::weak_ptr<Component> parent_): TransformComponent(parent_)
+PhysicsComponent::PhysicsComponent(std::weak_ptr<Component> parent_): TransformComponent(parent_),
+velocity_(Vec3(0.0f,0.0f,0.0f)),
+torque_(Vec3(0.0f,0.0f,0.0f)),
+acceleration_(Vec3(0.0f,0.0f,0.0f)),mass_(1.0f)
 {
 }
 

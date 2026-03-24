@@ -10,7 +10,7 @@ public:
 	void Run();
 	bool Initialize(std::string name_, int width_, int height_);
 	void HandleEvents();
-	
+	static void Quit();
 	
 private:
 
@@ -34,6 +34,8 @@ private:
 	bool isRunning;
 	bool fullScreen;
 	bool BuildNewScene(SCENE_NUMBER scene_);
+
+	
 };
 
 
