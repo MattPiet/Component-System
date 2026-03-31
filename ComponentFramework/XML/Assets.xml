@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Assets>
+    <Mesh meshName="PawnMesh" filename="meshes/Pawn.obj"/>
+    <Mesh meshName="RookMesh" filename="meshes/Rook.obj"/>
+    <Mesh meshName="KnightMesh" filename="meshes/Knight.obj"/>
+    <Mesh meshName="BishopMesh" filename="meshes/Bishop.obj"/>
+    <Mesh meshName="QueenMesh" filename="meshes/Queen.obj"/>
+    <Mesh meshName="KingMesh" filename="meshes/King.obj"/>
+    <Mesh meshName="Sphere" filename="meshes/Sphere.obj"/>
+    <Mesh meshName="Cube" filename="meshes/Cube.obj"/>
+    <Mesh meshName="Plane" filename="meshes/Plane.obj"/>
+    <Material textureName="WhiteMaterial" filename="textures/White Chess Base Colour.png"/>
+    <Material textureName="BlackMaterial" filename="textures/Black Chess Base Colour.png"/>
+    <Material textureName="ChessBoard" filename="textures/ChessBoard.png"/>
+    <Shader shaderName="DefaultShader" vertexShader="shaders/defaultVert.glsl" fragmentShader="shaders/defaultFrag.glsl"/>
+    <Shader shaderName="SkyboxShader" vertexShader="shaders/skyBoxVert.glsl" fragmentShader="shaders/skyBoxFrag.glsl"/>
+    <Shader shaderName="PhongShader" vertexShader="shaders/texturePhongVert.glsl" fragmentShader="shaders/texturePhongFrag.glsl"/>
+    <LightPosition posName="FarLeftLight" x="-20.0f" y="20.0f" z="10.0f"/>
+    <LightPosition posName="FarRightLight" x="20.0f" y="20.0f" z="10.0f"/>
+    <LightPosition posName="CloseLeftLight" x="-10.0f" y="-20.0f" z="10.0f"/>
+    <LightPosition posName="CloseRightLight" x="10.0f" y="-20.0f" z="10.0f"/>
+    <LightPosition posName="CenterLight" x="0.0f" y="0.0f" z="10.0f"/>
+    <DiffuseColour difName="FarLeftDiffuse" r="0.4" g="0.4" b="0.6" a="1.0f"/>
+    <DiffuseColour difName="FarRightDiffuse" r="0.6" g="0.4" b="0.4" a="1.0f"/>
+    <DiffuseColour difName="CloseLeftDiffuse" r="0.5" g="0.5" b="0.4" a="1.0f"/>
+    <DiffuseColour difName="CloseRightDiffuse" r="0.4" g="0.4" b="0.6" a="1.0f"/>
+    <DiffuseColour difName="CenterDiffuse" r="0.5" g="0.5" b="0.5" a="1.0f"/>
+    <title>The Great Gatsby</title>
+ </Assets>

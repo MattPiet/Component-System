@@ -7,6 +7,7 @@
 #include <Core/Actor.h>
 #include <Graphics/CameraActor.h>
 #include <Physics/CollisionSystem.h>
+#include <Graphics/AssetManager.h>
 #include <unordered_map>
 
 using namespace MATH;
@@ -19,6 +20,7 @@ private:
 	std::unique_ptr<CameraActor> camera;
 	std::shared_ptr<Actor> GameBoardActor;
 	std::unique_ptr<CollisionSystem> collision_system_;
+	std::unique_ptr<AssetManager> asset_manager_;
 	bool drawInWireMode;
 	bool showImGuiDemoWindow = true; // optional for testing
 	char textBuffer[256] = "";       // input text buffer
@@ -33,7 +35,7 @@ private:
 	std::string selectedActorName = "";
 
 	std::unordered_map<std::string, std::unique_ptr<Actor>> ActorList;
-	std::unordered_map<std::string, std::shared_ptr<Actor>> collision_boxes;
+	std::unordered_map<std::string, std::shared_ptr<Component>> collision_boxes;
 	std::unordered_map<std::string, std::unique_ptr<LightActor>> Lights;
 	std::unordered_map<std::string, std::shared_ptr<Actor>> Resources;
 	

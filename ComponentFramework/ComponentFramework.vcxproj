@@ -147,6 +147,7 @@
     <ClCompile Include="src\Core\SceneManager.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
+    <ClCompile Include="src\Graphics\AssetManager.cpp" />
     <ClCompile Include="src\Graphics\CameraActor.cpp" />
     <ClCompile Include="src\Graphics\LightActor.cpp" />
     <ClCompile Include="src\Graphics\MaterialComponent.cpp" />
@@ -311,6 +312,7 @@
     <ClCompile Include="src\Physics\TransformComponent.cpp" />
     <ClCompile Include="src\Scenes\ChessScene.cpp" />
     <ClCompile Include="src\Scenes\Scene0g.cpp" />
+    <ClCompile Include="src\tinyxml2.cpp" />
     <ClCompile Include="src\UI\Trackball.cpp" />
     <ClCompile Include="src\UI\UIManager.cpp" />
   </ItemGroup>
@@ -333,6 +335,7 @@
     <ClInclude Include="headers\Core\SceneManager.h" />
     <ClInclude Include="headers\Core\Timer.h" />
     <ClInclude Include="headers\Core\Window.h" />
+    <ClInclude Include="headers\Graphics\AssetManager.h" />
     <ClInclude Include="headers\Graphics\CameraActor.h" />
     <ClInclude Include="headers\Graphics\LightActor.h" />
     <ClInclude Include="headers\Graphics\MaterialComponent.h" />
