@@ -20,7 +20,7 @@ private:
 	std::unique_ptr<CameraActor> camera;
 	std::shared_ptr<Actor> GameBoardActor;
 	std::unique_ptr<CollisionSystem> collision_system_;
-	std::unique_ptr<AssetManager> asset_manager_;
+	//std::unique_ptr<AssetManager> asset_manager_;
 	bool drawInWireMode;
 	bool showImGuiDemoWindow = true; // optional for testing
 	char textBuffer[256] = "";       // input text buffer

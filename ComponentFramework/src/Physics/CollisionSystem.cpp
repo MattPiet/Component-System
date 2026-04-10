@@ -3,12 +3,12 @@
 bool CollisionSystem::CollisionDetection(const OBB& obbA, const OBB& obbB,  Ref<PhysicsComponent> pc1, Ref<PhysicsComponent> pc2 ,Vec3& outNormal, float& outPenetration)
 {
     /*  ________                  ________
-           A_1    |                 B_1    | hit box half extents
+        A_1    |                 B_1    | hit box half extents
         |      |                 |      |
         |      |                 |      |
         |      |                 |      |
         |      |                 |      |
-           +------|A_0              +------|B_0
+        +------|A_0              +------|B_0
        /       |                /       |
       /        |               /        |
      /         |              /         |
@@ -419,7 +419,7 @@ bool CollisionSystem::RayIntersectsOBB(Ref<CollisionComponent> col, const Matrix
           if (d2 < distToExit) distToExit = d2;
 
 
-       	/*  ________                  ________
+       	/*  _________                 ________
 			 A_1    |                 B_1    | hit box half extents
 		     |      |                 |      |
 		     |      |                 |      |

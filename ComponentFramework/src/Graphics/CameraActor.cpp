@@ -147,6 +147,9 @@ void CameraActor::UpdateViewMatrix(const SDL_Event &sdlEvent)
 void CameraActor::SetView(const Quaternion& orientation_, const Vec3& position_) {
 	GetComponent<PhysicsComponent>()->SetOrientation(orientation_);
 	GetComponent<PhysicsComponent>()->set_position(position_);
+	
+	this->position = position_;
+	this->orientation = orientation_;
 }
 
 void CameraActor::Render(){}

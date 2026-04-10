@@ -9,14 +9,22 @@
 #include <tinyxml2.h>
 
 using namespace tinyxml2;
+
 class AssetManager {
-private:
-    std::unordered_map<std::string , Ref<Component> > componentCatalog;
-    XMLDocument document_;
-    
 public:
-    AssetManager(const char* assetDirectory);
-    ~AssetManager();
+    static AssetManager* GetInstance() {
+        if (instance == nullptr)
+        {
+            instance = new AssetManager();
+        }
+        return instance;
+    }
+    
+    AssetManager(const AssetManager&) = delete;
+    void operator=(const AssetManager&) = delete;
+    
+    void Initialize(const char* assetDirectory);
+    
     bool OnCreate();
     void OnDestroy();
 
@@ -40,5 +48,11 @@ public:
 #endif 
         return std::dynamic_pointer_cast<ComponentTemplate>(id->second);
     }
-	
+    
+private:
+    AssetManager(); 
+    ~AssetManager();
+    static AssetManager* instance;
+    std::unordered_map<std::string , Ref<Component> > componentCatalog;
+    XMLDocument document_;
 };

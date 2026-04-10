@@ -33,15 +33,15 @@ ChessScene::~ChessScene() {
 }
 
 bool ChessScene::OnCreate() {
-
-	asset_manager_ = std::make_unique<AssetManager>("XML/assets.xml");
-	asset_manager_->OnCreate();
+	
+	AssetManager::GetInstance()->Initialize("XML/ChessAssets.xml");
+	AssetManager::GetInstance()->OnCreate();
 	
 	// me make camera here I wanted to have a skybox so I just made it a material comp
 	camera = std::make_unique<CameraActor>(std::weak_ptr<Component>(), 45.0f, 16.0f / 9.0f, 0.5f, 400.0f);
-	camera->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, -5.0f), Quaternion());
-	camera->AddComponent<ShaderComponent>(asset_manager_->GetComponent<ShaderComponent>("SkyboxShader"));
-	camera->AddComponent<MeshComponent>(asset_manager_->GetComponent<MeshComponent>("Cube"));
+	camera->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(), Vec3(0.0f, 0.0f, 0.0f), Quaternion());
+	camera->AddComponent<ShaderComponent>(AssetManager::GetInstance()->GetComponent<ShaderComponent>("SkyboxShader"));
+	camera->AddComponent<MeshComponent>(AssetManager::GetInstance()->GetComponent<MeshComponent>("Cube"));
 	camera->AddComponent<SkyBoxComponent>(std::weak_ptr<Component>(),
 		"textures/skybox/StarSkyboxPosx.png",
 		"textures/skybox/StarSkyboxNegx.png",
@@ -50,13 +50,12 @@ bool ChessScene::OnCreate() {
 		"textures/skybox/StarSkyboxPosz.png",
 		"textures/skybox/StarSkyboxnegz.png");
 	camera->OnCreate();
-
 	// this is the foundation all living things come back to the game board. Literally everything except the camera is parented to it
 	GameBoardActor = std::make_shared<Actor>(std::weak_ptr<Component>());
 	//std::shared_ptr<ShaderComponent> shader =  std::make_shared<ShaderComponent>(nullptr, "shaders/texturePhongVert.glsl", "shaders/texturePhongFrag.glsl");
-	GameBoardActor->AddComponent<MaterialComponent>(asset_manager_->GetComponent<MaterialComponent>("ChessBoard"));
-	GameBoardActor->AddComponent<MeshComponent>(asset_manager_->GetComponent<MeshComponent>("Plane"));
-	GameBoardActor->AddComponent<ShaderComponent>(asset_manager_->GetComponent<ShaderComponent>("PhongShader"));
+	GameBoardActor->AddComponent<MaterialComponent>(AssetManager::GetInstance()->GetComponent<MaterialComponent>("ChessBoard"));
+	GameBoardActor->AddComponent<MeshComponent>(AssetManager::GetInstance()->GetComponent<MeshComponent>("Plane"));
+	GameBoardActor->AddComponent<ShaderComponent>(AssetManager::GetInstance()->GetComponent<ShaderComponent>("PhongShader"));
 	GameBoardActor->AddComponent<PhysicsComponent>(std::weak_ptr<Component>(), Vec3(0.0f, -1.5f, -5.0f), Quaternion(), Vec3(1.0f, 1.0f, 1.0f));
 	GameBoardActor->OnCreate();
 
@@ -94,38 +93,38 @@ bool ChessScene::OnCreate() {
 		Vec3 halfExts(hx, hy, hz);
 		
 		// setup meshes
-		if (actorName.find("Rook") != std::string::npos)		  actor->AddComponent<MeshComponent>(asset_manager_->GetComponent<MeshComponent>("RookMesh"));
-		else if (actorName.find("Knight") != std::string::npos)   actor->AddComponent<MeshComponent>(asset_manager_->GetComponent<MeshComponent>("KnightMesh"));
+		if (actorName.find("Rook") != std::string::npos)		  actor->AddComponent<MeshComponent>(AssetManager::GetInstance()->GetComponent<MeshComponent>("RookMesh"));
+		else if (actorName.find("Knight") != std::string::npos)   actor->AddComponent<MeshComponent>(AssetManager::GetInstance()->GetComponent<MeshComponent>("KnightMesh"));
 		else if (actorName.find("Bishop") != std::string::npos)
 		{
-			actor->AddComponent<MeshComponent>(asset_manager_->GetComponent<MeshComponent>("BishopMesh"));
+			actor->AddComponent<MeshComponent>(AssetManager::GetInstance()->GetComponent<MeshComponent>("BishopMesh"));
 			halfExts.y += 1.0f;
 		}
 		else if (actorName.find("Queen") != std::string::npos)
 		{
-			actor->AddComponent<MeshComponent>(asset_manager_->GetComponent<MeshComponent>("QueenMesh"));
+			actor->AddComponent<MeshComponent>(AssetManager::GetInstance()->GetComponent<MeshComponent>("QueenMesh"));
 			halfExts.y += 1.5f;
 		}
 		else if (actorName.find("King") != std::string::npos)
 		{
-			actor->AddComponent<MeshComponent>(asset_manager_->GetComponent<MeshComponent>("KingMesh"));
+			actor->AddComponent<MeshComponent>(AssetManager::GetInstance()->GetComponent<MeshComponent>("KingMesh"));
 			halfExts.y += 3.0f;
 		}
-		else if (actorName.find("Pawn") != std::string::npos)     actor->AddComponent<MeshComponent>(asset_manager_->GetComponent<MeshComponent>("PawnMesh"));
+		else if (actorName.find("Pawn") != std::string::npos) actor->AddComponent<MeshComponent>(AssetManager::GetInstance()->GetComponent<MeshComponent>("PawnMesh"));
 
 		if (actorName.find("White") != std::string::npos)
-			actor->AddComponent<MaterialComponent>(asset_manager_->GetComponent<MaterialComponent>("WhiteMaterial"));
+			actor->AddComponent<MaterialComponent>(AssetManager::GetInstance()->GetComponent<MaterialComponent>("WhiteMaterial"));
 		else
-			actor->AddComponent<MaterialComponent>(asset_manager_->GetComponent<MaterialComponent>("BlackMaterial"));
+			actor->AddComponent<MaterialComponent>(AssetManager::GetInstance()->GetComponent<MaterialComponent>("BlackMaterial"));
 
 		/// Initialize collisions
 		actor->AddComponent<CollisionComponent>(std::weak_ptr<Component>(), halfExts);
 		actor->GetComponent<CollisionComponent>()->set_collider_type(ColliderType::OBB);
 		if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::SPHERE) {
-			collision_boxes.emplace(actorName + "Box", asset_manager_->GetComponent<MeshComponent>("Sphere"));
+			collision_boxes.emplace(actorName + "Box", AssetManager::GetInstance()->GetComponent<MeshComponent>("Sphere"));
 		}
 		else if (actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::AABB || actor->GetComponent<CollisionComponent>()->get_colliderType() == ColliderType::OBB) {
-			collision_boxes.emplace(actorName + "Box", asset_manager_->GetComponent<MeshComponent>("Box"));
+			collision_boxes.emplace(actorName + "Box", AssetManager::GetInstance()->GetComponent<MeshComponent>("Box"));
 		}
 	//	actor->GetComponent<CollisionComponent>()->draw = true;
 		actor->OnCreate();
@@ -191,7 +190,7 @@ bool ChessScene::OnCreate() {
 	for (int i = 0; i < 5; i++) {
 		std::string lightName = light_names[i];
 		std::unique_ptr<LightActor> Light = std::make_unique<LightActor>(GameBoardActor);
-		Light->AddComponent<PhysicsComponent>(asset_manager_->GetComponent<PhysicsComponent>(light_names[i].c_str()));
+		Light->AddComponent<PhysicsComponent>(		AssetManager::GetInstance()->GetComponent<PhysicsComponent>(light_names[i].c_str()));
 		Light->OnCreate();
 		// right now they all have the same spec but I might change it later so I just made it an array like the diffuse
 		Light->SetSpecular(Vec4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -210,7 +209,7 @@ bool ChessScene::OnCreate() {
 		}
 		SDL_free(gamepads);
 	}
-	Vec3 offset = Vec3(0.0f, 0.0f, 15.0f);
+	Vec3 offset = Vec3(-15.0f, 10.0f, 50.0f);
 	Vec3 rotatedOffset = QMath::rotate(offset, camera->GetOrientation());
 	Vec3 cameraPos = Vec3(0.0f, 0.0f, 0.0f) + rotatedOffset;
 	camera->SetView(camera->GetOrientation(), cameraPos);
@@ -224,7 +223,6 @@ void ChessScene::OnDestroy() {
 	//// begone memory leaks
 	ActorList.clear();
 	Lights.clear();
-	asset_manager_.reset();
 	camera.reset();
 	collision_boxes.clear();
 	collision_system_.reset();
@@ -234,6 +232,7 @@ void ChessScene::OnDestroy() {
 		gamepad = nullptr;
 	}
 	SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
+	AssetManager::GetInstance()->RemoveAllComponents();
 }
 
 void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
@@ -566,9 +565,9 @@ void ChessScene::Render() const {
 	}
 	// render collsion boxes
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glUseProgram(static_cast<GLint>(asset_manager_->GetComponent<ShaderComponent>("DefaultShader")->GetProgram()));
-	glUniformMatrix4fv(static_cast<GLint>(asset_manager_->GetComponent<ShaderComponent>("DefaultShader")->GetUniformID("projectionMatrix")), 1, GL_FALSE, camera->GetProjectionMatrix());
-	glUniformMatrix4fv(static_cast<GLint>(asset_manager_->GetComponent<ShaderComponent>("DefaultShader")->GetUniformID("viewMatrix")), 1, GL_FALSE, camera->GetViewMatrix());
+	glUseProgram(static_cast<GLint>(AssetManager::GetInstance()->GetComponent<ShaderComponent>("DefaultShader")->GetProgram()));
+	glUniformMatrix4fv(static_cast<GLint>(AssetManager::GetInstance()->GetComponent<ShaderComponent>("DefaultShader")->GetUniformID("projectionMatrix")), 1, GL_FALSE, camera->GetProjectionMatrix());
+	glUniformMatrix4fv(static_cast<GLint>(AssetManager::GetInstance()->GetComponent<ShaderComponent>("DefaultShader")->GetUniformID("viewMatrix")), 1, GL_FALSE, camera->GetViewMatrix());
 	for (auto const& [name, actor] : ActorList)
 	{
 		if (actor->GetComponent<CollisionComponent>()->draw)
@@ -578,9 +577,9 @@ void ChessScene::Render() const {
 			if (!colComp->draw) continue; // Skip if we aren't drawing this one
 			// make the mm for the hit boxes works with all types of collisions
 			colliderModelMatrix = colComp->CalculateModelMatrix(colliderModelMatrix);
-			glUniformMatrix4fv(static_cast<GLint>(asset_manager_->GetComponent<ShaderComponent>("DefaultShader")->GetUniformID("modelMatrix")), 1, GL_FALSE, colliderModelMatrix);
-			glUniform4fv(static_cast<GLint>(asset_manager_->GetComponent<ShaderComponent>("DefaultShader")->GetUniformID("colour")), 1, colComp->get_collision_colour());
-			asset_manager_->GetComponent<MeshComponent>("Cube")->Render();
+			glUniformMatrix4fv(static_cast<GLint>(AssetManager::GetInstance()->GetComponent<ShaderComponent>("DefaultShader")->GetUniformID("modelMatrix")), 1, GL_FALSE, colliderModelMatrix);
+			glUniform4fv(static_cast<GLint>(AssetManager::GetInstance()->GetComponent<ShaderComponent>("DefaultShader")->GetUniformID("colour")), 1, colComp->get_collision_colour());
+					AssetManager::GetInstance()->GetComponent<MeshComponent>("Cube")->Render();
 		}
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

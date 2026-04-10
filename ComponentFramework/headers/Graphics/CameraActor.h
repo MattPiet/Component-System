@@ -40,6 +40,7 @@ public:
 		Matrix4 cameraToWorld = MMath::inverse(worldToCamera);
 		Vec3 rotated_forward_in_cam_space = cameraToWorld * direction;
 		return rotated_forward_in_cam_space;
+		
 	}
 
 	Quaternion GetOrientation() const { return GetComponent<PhysicsComponent>()->GetQuaternion(); }

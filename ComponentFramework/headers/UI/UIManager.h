@@ -32,4 +32,4 @@ public:
 
 };
 
-static bool showDebugWindow = false;
+static bool showDebugWindow = true;
