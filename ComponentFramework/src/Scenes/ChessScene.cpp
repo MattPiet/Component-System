@@ -215,7 +215,6 @@ bool ChessScene::OnCreate() {
 	camera->SetView(camera->GetOrientation(), cameraPos);
 	ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->SetPosition(Vec3(ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().x - xStep,
 		ActorList.at("KnightWhite1")->GetComponent<TransformComponent>()->GetPosition().y, 100.0f));
-	
 	return true;
 }
 
@@ -340,10 +339,10 @@ void ChessScene::HandleEvents(const SDL_Event &sdlEvent) {
 
 		if (!bestHitName.empty()) {
 			selectedActorName = bestHitName;
-			std::cout << "Selected: " << selectedActorName << " at Distance: " << minT << "\n";
+			isDragging = true;
 		}
 	}
-	break; 
+	break;
 	default:
 		break;
     }
@@ -503,29 +502,13 @@ void ChessScene::Render() const {
 	/// Set the background color then clear the screen
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// render skybox first
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glDepthMask(GL_FALSE);
-	glUseProgram(camera->GetComponent<ShaderComponent>()->GetProgram());
-	glUniformMatrix4fv(camera->GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, camera->GetProjectionMatrix());
-	glUniformMatrix4fv(camera->GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, MMath::inverse(MMath::toMatrix4(camera->GetOrientation())));
-	glBindTexture(GL_TEXTURE_CUBE_MAP, camera->GetComponent<SkyBoxComponent>()->getTextureID());
-	camera->GetComponent<MeshComponent>()->Render();
-	glDepthMask(GL_TRUE);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
+	camera->Render();
 	if (drawInWireMode) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
 	// One shader for everything and it is attached to the board
 	// render GB second
 	glUseProgram(static_cast<GLint>(GameBoardActor->GetComponent<ShaderComponent>()->GetProgram()));
@@ -585,8 +568,6 @@ void ChessScene::Render() const {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glUseProgram(0);
 }
-
-// Well that's all of my terrible code honestly I'd fail me
 
 
 

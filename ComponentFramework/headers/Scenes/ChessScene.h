@@ -47,7 +47,8 @@ private:
 	const float CONSOLE_MESSAGE_DURATION = 5.0f; // Seconds to stay visible
 	char commandInput[256] = ""; 
 	bool showConsole = true; 
-
+	bool isDragging = false;
+	Vec3 grabOffset;
 public:
 	explicit ChessScene();
 	virtual ~ChessScene();

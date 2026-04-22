@@ -5,6 +5,9 @@
 #include <UI/UIManager.h>
 
 #include "Physics/PhysicsComponent.h"
+#include <Graphics/MeshComponent.h>
+#include <Graphics/ShaderComponent.h>
+#include <Graphics/SkyBoxComponent.h>
 
 CameraActor::CameraActor(std::weak_ptr<Component> parent_, float fovy, float aspectRatio, float near, float far) : Actor(parent_), 
                                                                                                                    orientation(), projectionMatrix(), viewMatrix(), position(), trackball(), textureID(0)
@@ -152,4 +155,24 @@ void CameraActor::SetView(const Quaternion& orientation_, const Vec3& position_)
 	this->orientation = orientation_;
 }
 
-void CameraActor::Render(){}
+void CameraActor::Render()
+{
+	if (!GetComponent<MeshComponent>() && !GetComponent<ShaderComponent>() && !GetComponent<SkyBoxComponent>()) {
+		Debug::Error("CameraActor missing MeshComponent, ShaderComponent, or SkyBoxComponent for rendering.", __FILE__, __LINE__);
+		return;
+	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glDepthMask(GL_FALSE);
+	glUseProgram(GetComponent<ShaderComponent>()->GetProgram());
+	glUniformMatrix4fv(GetComponent<ShaderComponent>()->GetUniformID("projectionMatrix"), 1, GL_FALSE, GetProjectionMatrix());
+	glUniformMatrix4fv(GetComponent<ShaderComponent>()->GetUniformID("viewMatrix"), 1, GL_FALSE, MMath::inverse(MMath::toMatrix4(GetOrientation())));
+	glBindTexture(GL_TEXTURE_CUBE_MAP, GetComponent<SkyBoxComponent>()->getTextureID());
+	GetComponent<MeshComponent>()->Render();
+	glDepthMask(GL_TRUE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+}

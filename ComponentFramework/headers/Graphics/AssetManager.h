@@ -7,17 +7,16 @@
 #include <fstream>
 
 #include <tinyxml2.h>
-
+#include <Utils/MemoryMonitor.h>
 using namespace tinyxml2;
 
 class AssetManager {
 public:
     static AssetManager* GetInstance() {
-        if (instance == nullptr)
-        {
-            instance = new AssetManager();
+        if (instance == nullptr) {
+            instance = std::unique_ptr<AssetManager>(new AssetManager());
         }
-        return instance;
+        return instance.get();
     }
     
     AssetManager(const AssetManager&) = delete;
@@ -30,6 +29,8 @@ public:
 
     void RemoveAllComponents();
     void ListAllComponents() const;
+
+    ~AssetManager();
 
     template<typename ComponentTemplate, typename ... Args>
     void AddComponent(const char* name, Args&& ... args_) {
@@ -51,8 +52,8 @@ public:
     
 private:
     AssetManager(); 
-    ~AssetManager();
-    static AssetManager* instance;
+   
+    static std::unique_ptr<AssetManager> instance;
     std::unordered_map<std::string , Ref<Component> > componentCatalog;
     XMLDocument document_;
 };

@@ -64,7 +64,7 @@ bool AssetManager::OnCreate()
             }
         }
         else if (tagName == "LightPosition") {
-            const char* name = element->Attribute("posName"); // Matches "posName" in XML
+            const char* name = element->Attribute("posName"); 
 
             if (name) {
                 float x = 0.0f, y = 0.0f, z = 0.0f;
@@ -103,4 +103,4 @@ void AssetManager::ListAllComponents() const
     }
     std::cout << '\n';
 }
-AssetManager* AssetManager::instance = nullptr;
+std::unique_ptr<AssetManager> AssetManager::instance = nullptr;
